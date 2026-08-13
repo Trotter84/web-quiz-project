@@ -1,1 +1,29 @@
-ECHO is on.
+Trivia Format
+{
+	"question": <"Question here">,
+	"possible_answers": [answer1, answer2, answer3, answer4],//One of these answers needs to be the correct one
+	"right_answer": <insert correct answer>,
+}
+ 
+Typing Format
+{
+	"word": <insert word>,
+	"timer": <insert time to type here>,//this is how long the player has to type correctly
+	"fact": <Fact here>,//This will be a fact about the word being typed, such as "A database is a collection of data that can be queried"
+}
+ 
+Category Format
+{
+	"name": <insert category name>,
+	"questions": <insert questions here>,//We need to discuss in what format these questions should be connected to the categories
+}
+ 
+User Format
+{
+	"name": <insert user name>,
+	"top_scores": {
+		"timed_score": <insert fastest time">,
+		"accuracy_score": <insert highest score from questions>,
+	},
+	"password": <insert password here>,//This is only here for if we do decide to implement in the future, don't need to add to start
+}

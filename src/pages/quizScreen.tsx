@@ -1,21 +1,39 @@
 import {type JSX, useState} from "react";
 
-interface QuizScreenA {
+interface QuizScreenAProps {
     word: string;
     fact: string;
-    input: string;
-
 }
 
-interface QuizScreenB {
+interface QuizScreenBProps {
     question: string;
     possible_Answers: string[];
     right_answer: string;
-    answer: string;
 }
 
+export default function QuizContainer(): JSX.Element {
+    const [isQuiz, setIsQuiz] = useState<boolean>(false);
 
-export function QuizScreenA({word}: QuizScreenA): JSX.Element {
+    return (
+        <>
+            <button onClick={() => setIsQuiz(!isQuiz)}>
+                Switch to {isQuiz ? "Screen A" : "Screen B"}
+            </button>
+
+            {isQuiz ? (
+                <QuizScreenA word="example" fact="example"/>
+            ) : (
+                <QuizScreenB
+                    question="What is the capital of France?"
+                    possible_Answers={["Paris", "London", "Berlin", "Madrid"]}
+                    right_answer="Paris"
+                />
+            )}
+        </>
+    );
+}
+
+export function QuizScreenA({word}: QuizScreenAProps): JSX.Element {
     const [input, setInput] = useState<string>("");
 
     return (
@@ -36,7 +54,7 @@ export function QuizScreenA({word}: QuizScreenA): JSX.Element {
     );
 }
 
-export function QuizScreenB({question, possible_Answers}: QuizScreenB): JSX.Element {
+export function QuizScreenB({question, possible_Answers}: QuizScreenBProps): JSX.Element {
     return (
         <>
             <div>
@@ -44,23 +62,12 @@ export function QuizScreenB({question, possible_Answers}: QuizScreenB): JSX.Elem
             </div>
 
             <div>
-                <p>
-                    <button>{possible_Answers[0]}</button>
-                </p>
-                <p>
-                    <button>{possible_Answers[1]}</button>
-                </p>
-                <p>
-                    <button>{possible_Answers[2]}</button>
-                </p>
-                <p>
-                    <button>{possible_Answers[3]}</button>
-                </p>
-                <p>
-                    <button>{possible_Answers[4]}</button>
-                </p>
+                {possible_Answers.map((ans, i) => (
+                    <p key={i}>
+                        <button>{ans}</button>
+                    </p>
+                ))}
             </div>
         </>
     );
 }
-

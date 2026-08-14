@@ -1,9 +1,6 @@
 import {useState} from "react";
 
 
-
-
-
 function Login()
 {
     // This is essentially just the same code as the sign-up page for now.
@@ -15,7 +12,7 @@ function Login()
 
     const handleLogin = async () =>
     {
-        await fetch("/api/login", { // We need to get the backend server running so we can send the user data to the endpoint and handle the user creation logic from there.
+        await fetch("/api/login", { // We need to get the backend server running so we can send the user data to the endpoint and handle the user login logic from there.
             method: "POST",
             headers: {"Content-Type": "application/json"},
             body: JSON.stringify({username:usernameValue, password:passwordValue}),

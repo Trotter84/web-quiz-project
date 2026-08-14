@@ -3,7 +3,7 @@ import {useState} from "react";
 
 
 
-//TODO: I need to change some logic for storing username and password because it has a one input delay
+
 function Login()
 {
     // This is essentially just the same code as the sign-up page for now.

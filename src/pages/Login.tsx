@@ -3,62 +3,36 @@ import {useState} from "react";
 
 
 
-
+//TODO: I need to change some logic for storing username and password because it has a one input delay
 function Login()
 {
     // This is essentially just the same code as the sign-up page for now.
     // I need to use the user input to check and see if they have an existing account. I should only check for username NOT password for now.
     const [usernameValue, setUsernameValue] = useState("");
-    const [storedUsername, setStoredUsername] = useState("");
+
 
     const [passwordValue, setPasswordValue] = useState("");
-    const [storedPassword, setStoredPassword] = useState("");
 
-    const handleStoredUsername = () =>
+    const handleLogin = async () =>
     {
-        setStoredUsername(usernameValue);
-        setUsernameValue(""); // This should clear the username text box
-    };
-
-    const handleStoredPassword = () =>
-    {
-        setStoredPassword(passwordValue);
-        setPasswordValue(""); // This should clear the password text box
+        await fetch("/api/login", { // We need to get the backend server running so we can send the user data to the endpoint and handle the user creation logic from there.
+            method: "POST",
+            headers: {"Content-Type": "application/json"},
+            body: JSON.stringify({username:usernameValue, password:passwordValue}),
+        });
     }
 
-    // This function cannot work without a given JSON file.
-    function checkIfAccountExists()
-    {
-        interface User
-        {
-            name: string;
-        }
-        const exampleUser = {name: "Parker"};
-
-        const users: User[] = [exampleUser];
-
-        for (const user of users)
-        {
-            const {name} = user;
-            if (name == storedUsername)
-            {
-                console.log("User found!");
-            }
-        }
-    }
-
-    if (storedUsername === "" && storedPassword === ""){}
     return (
         <>
             <h1>Login</h1>
+            <label>Username:</label>
             <input type="text" value={usernameValue} onChange={(input) => setUsernameValue(input.target.value)}/>
+            <label>Password:</label>
             <input type="text" value={passwordValue} onChange={(input) => setPasswordValue(input.target.value)}/>
             <button onClick={() => {
-                handleStoredUsername();
-                handleStoredPassword();
-                checkIfAccountExists();
+                handleLogin();
             }
-            }>Sign Up
+            }>Log In
             </button>
         </>);
 }

@@ -1,0 +1,13 @@
+/*#6cdaab*/
+
+.stopwatch {
+    margin: 1rem;
+    font-size: 1rem;
+    color: var(--text);
+    transition: 0.2s;
+}
+
+.stopwatch.active {
+    font-size: 1.4rem;
+    color: var(--option2);
+}

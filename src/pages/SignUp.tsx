@@ -15,7 +15,7 @@ function SignUp()
 
     const handleSignUp = async () =>
     {
-        await fetch("/api/users", { // We need to get the backend server running so we can send the user data to the endpoint and handle the user creation logic from there.
+        await fetch("/api/users", {
             method: "POST",
             headers: {"Content-Type": "application/json"},
             body: JSON.stringify({username:usernameValue, password:passwordValue}),

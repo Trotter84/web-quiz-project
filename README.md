@@ -7,3 +7,4 @@
 * [concurrently --save-dev](https://www.npmjs.com/package/concurrently)
 * [cors](https://www.npmjs.com/package/cors)
 * [react-timer-hook](https://www.npmjs.com/package/react-timer-hook)
+* [-D tsx](https://www.npmjs.com/package/tsx)

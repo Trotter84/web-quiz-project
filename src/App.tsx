@@ -1,4 +1,5 @@
 import {Route, Routes} from 'react-router-dom'
+import { UserProvider } from "./context/UserContext.tsx";
 import './styles/App.css'
 
 import Home from './pages/Home.tsx'
@@ -9,7 +10,7 @@ import QuizScreen from "./pages/QuizScreen.tsx";
 export default function App() {
 
     return (
-        <>
+        <UserProvider>
             <Routes>
                 {/*<Route path={'/'} element={<Login/>}/>*/}
                 <Route path={'/home'} element={<Home/>}/>
@@ -18,6 +19,6 @@ export default function App() {
                 <Route path={'/quiz/:category'} element={<QuizScreen/>}/>
 
             </Routes>
-        </>
-    )
+        </UserProvider>
+    );
 }

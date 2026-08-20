@@ -1,4 +1,6 @@
 import {useState} from "react";
+import {useNavigate} from "react-router-dom";
+import {useUser} from "../context/UserContext.tsx";
 
 
 function Login()
@@ -7,15 +9,21 @@ function Login()
     // I need to use the user input to check and see if they have an existing account. I should only check for username NOT password for now.
     const [usernameValue, setUsernameValue] = useState("");
 
+    const [errorMessage, setErrorMessage] = useState("");
 
-    const [passwordValue, setPasswordValue] = useState("");
+    const navigate = useNavigate();
+
+    const { login } = useUser();
+
+
+
 
     const handleLogin = async () =>
     {
-        await fetch("/api/login", { // We need to get the backend server running so we can send the user data to the endpoint and handle the user login logic from there.
-            method: "POST",
+        setErrorMessage("");
+        await fetch("/api/users", {
             headers: {"Content-Type": "application/json"},
-            body: JSON.stringify({username:usernameValue, password:passwordValue}),
+            body: JSON.stringify({username:usernameValue}),
         });
     }
 
@@ -24,8 +32,6 @@ function Login()
             <h1>Login</h1>
             <label>Username:</label>
             <input type="text" value={usernameValue} onChange={(input) => setUsernameValue(input.target.value)}/>
-            <label>Password:</label>
-            <input type="text" value={passwordValue} onChange={(input) => setPasswordValue(input.target.value)}/>
             <button onClick={() => {
                 handleLogin();
             }

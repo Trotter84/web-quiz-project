@@ -7,5 +7,4 @@ const wordSchema = new mongoose.Schema({
     category: {type: String, required: true},
 });
 
-
-export default mongoose.model('Word', wordSchema);
+export default mongoose.model('Word', wordSchema, 'Typing');

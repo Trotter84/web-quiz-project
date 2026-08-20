@@ -8,7 +8,7 @@ import userRoutes from './routes/userRoutes';
 import questionRoutes from './routes/questionRoutes';
 import wordRoutes from './routes/wordRoutes';        // ADD THIS
 
-mongoose.connect('mongodb+srv://gcrichton_db_user:Didq48hWtx5N46gV@cluster0.irlkoas.mongodb.net/')
+mongoose.connect('mongodb+srv://gcrichton_db_user:Didq48hWtx5N46gV@cluster0.irlkoas.mongodb.net/Web-Quiz-Project')
     .then(() => console.log('MongoDB connected'))
     .catch(err => console.error(err));
 

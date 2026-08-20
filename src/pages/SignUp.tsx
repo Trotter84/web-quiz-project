@@ -1,4 +1,6 @@
 import {useState} from "react";
+import {useNavigate} from "react-router-dom";
+
 //import * as fs from 'fs';
 
 
@@ -7,19 +9,30 @@ function SignUp()
 {
     const [usernameValue, setUsernameValue] = useState("");
 
-
     const [passwordValue, setPasswordValue] = useState("");
 
+    const [errorMessage, setErrorMessage] = useState("");
 
-
+    const navigate = useNavigate();
 
     const handleSignUp = async () =>
     {
-        await fetch("/api/users", {
+
+        const response = await fetch("/api/users", {
             method: "POST",
             headers: {"Content-Type": "application/json"},
-            body: JSON.stringify({username:usernameValue, password:passwordValue}),
+            body: JSON.stringify({username: usernameValue}),
         });
+        if (response.status === 409)
+        {
+            console.log("Username already taken");
+            setErrorMessage("Username already taken");
+        }
+        else if(response.ok)
+        {
+            navigate("/login");
+            setErrorMessage("");
+        }
     }
 
 
@@ -38,6 +51,7 @@ function SignUp()
                 handleSignUp();
             }
             }>Sign Up</button>
+            <p style={{color: "red"}}>{errorMessage}</p>
         </>);
 }
 export default SignUp;

@@ -20,7 +20,7 @@ const userSchema = new Schema<IUser>({
     top_scores: {
         timed_score: { type: Number, required: false, default: 0 },
         accuracy_score: { type: Number, required: false, default: 0 }
-    }
-});
+    },
+}, { collection: 'User' });
 
 export const User = model<IUser>('User', userSchema);

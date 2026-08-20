@@ -2,12 +2,16 @@ import express from 'express'
 import { User } from '../models/User';
 const router = express.Router();
 
-router.post('/', async (req, res): Promise<void> => {
+router.post('/', async (req, res) => {
 
     try{
-        const {username, password} = req.body;
-
-        const newUser = new User({name: username, password});
+        const {username} = req.body;
+        const userExists = await User.exists({name: username});
+        if (userExists)
+        {
+            return res.status(409).json({message: 'Username already taken'});
+        }
+        const newUser = new User({name: username});
 
         const savedUser = await newUser.save();
 

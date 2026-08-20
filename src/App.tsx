@@ -1,10 +1,10 @@
 import {Route, Routes} from 'react-router-dom'
 import './styles/App.css'
 
-import Home from './pages/home.tsx'
+import Home from './pages/Home.tsx'
 import SignUp from "./pages/SignUp.tsx";
 import Login from "./pages/Login.tsx";
-import QuizScreen from "./pages/quizScreen.tsx";
+import QuizScreen from "./pages/QuizScreen.tsx";
 
 export default function App() {
 

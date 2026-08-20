@@ -1,11 +1,5 @@
 import {Link} from "react-router";
-import {useState} from "react";
 
-export default function CategoryCard() {
-    // @ts-ignore
-    const [title, setTitle] = useState("Placeholder Title");
-
-    return (
-        <Link to="../../pages/quizScreen.tsx">{title}</Link>
-    )
+export default function CategoryCard({category}: { category: string }) {
+    return <Link to={`/quiz/${category}`}>{category}</Link>;
 }

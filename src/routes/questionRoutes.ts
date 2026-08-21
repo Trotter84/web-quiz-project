@@ -21,7 +21,16 @@ router.get('/categories', async (req, res) => {
     }
 });
 
-// Can change .post to .get or .put depending on what you need to do
+// uses the url to match and find the selected category
+router.get('/:category', async (req, res) => {
+    try {
+        const questions = await Question.find({category: req.params.category});
+        res.json(questions);
+    } catch (err) {
+        res.status(500).json({message: 'Failed to fetch questions for category', error: err});
+    }
+});
+
 router.post('/', (req, res) => {
     console.log(req.body) // temporary use of the parameters to not make the compiler mad.
     res.json({message: 'API is running!'})

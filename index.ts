@@ -4,9 +4,9 @@ import mongoose from 'mongoose';
 
 const app = express();
 const PORT = 3000;
-import userRoutes from './routes/userRoutes';
-import questionRoutes from './routes/questionRoutes';
-import wordRoutes from './routes/wordRoutes';        // ADD THIS
+import userRoutes from './src/routes/userRoutes';
+import questionRoutes from './src/routes/questionRoutes';
+import wordRoutes from './src/routes/wordRoutes';        // ADD THIS
 
 mongoose.connect('mongodb+srv://gcrichton_db_user:Didq48hWtx5N46gV@cluster0.irlkoas.mongodb.net/Web-Quiz-Project')
     .then(() => console.log('MongoDB connected'))

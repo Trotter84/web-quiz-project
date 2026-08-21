@@ -21,10 +21,19 @@ function Login()
     const handleLogin = async () =>
     {
         setErrorMessage("");
-        await fetch("/api/users", {
-            headers: {"Content-Type": "application/json"},
-            body: JSON.stringify({username:usernameValue}),
-        });
+        const response = await fetch("/api/users/check?name=" + usernameValue);
+        const nameJson = await response.json();
+
+        if (nameJson.exists)
+        {
+            login(usernameValue);
+            console.log("Logged into " + usernameValue);
+            navigate("/home");
+        }
+        else
+        {
+            setErrorMessage("Username does not exists. Please create an account.");
+        }
     }
 
     return (
@@ -37,6 +46,7 @@ function Login()
             }
             }>Log In
             </button>
+            <p style={{color: "red"}}>{errorMessage}</p>
         </>);
 }
 export default Login;

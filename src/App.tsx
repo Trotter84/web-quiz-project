@@ -13,7 +13,7 @@ export default function App() {
         <UserProvider>
             <Routes>
                 {/*<Route path={'/'} element={<Login/>}/>*/}
-                <Route path={'/home'} element={<Home/>}/>
+                <Route path={'/'} element={<Home/>}/>
                 <Route path={'/sign-up'} element={<SignUp/>}/>
                 <Route path={'/login'} element={<Login/>}/>
                 <Route path={'/quiz/:category'} element={<QuizScreen/>}/>

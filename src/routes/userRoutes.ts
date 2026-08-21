@@ -24,4 +24,16 @@ router.post('/', async (req, res) => {
     }
 });
 
+router.get('/', async (req, res) =>
+{
+   const username = req.query.username;
+
+   if (!username)
+   {
+       return res.status(400).json({message: 'No username found.'});
+   }
+
+   const userExists = await User.exists({name: username});
+});
+
 export default router;

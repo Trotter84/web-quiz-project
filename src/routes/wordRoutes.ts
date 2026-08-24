@@ -17,6 +17,8 @@ router.get('/:category', async (req, res) => {
     try {
         const words = await Word.find({category: req.params.category});
         res.json(words);
+        console.log();
+        console.log(words);
     } catch (err) {
         res.status(500).json({message: 'Failed to fetch words for category', error: err});
     }

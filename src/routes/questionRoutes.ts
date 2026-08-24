@@ -3,6 +3,7 @@ import Question from '../models/Question';
 
 const router = express.Router();
 
+// @ts-ignore
 router.get('/', async (req, res) => {
     try {
         const questions = await Question.find();
@@ -12,6 +13,7 @@ router.get('/', async (req, res) => {
     }
 });
 
+// @ts-ignore
 router.get('/categories', async (req, res) => {
     try {
         const categories = await Question.distinct('category');

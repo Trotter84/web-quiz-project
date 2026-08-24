@@ -3,7 +3,7 @@ import Question from '../models/Question';
 
 const router = express.Router();
 
-router.get('/', async (_req, res) => {
+router.get('/', async (req, res) => {
     try {
         const questions = await Question.find();
         res.json(questions);
@@ -12,7 +12,7 @@ router.get('/', async (_req, res) => {
     }
 });
 
-router.get('/categories', async (_req, res) => {
+router.get('/categories', async (req, res) => {
     try {
         const categories = await Question.distinct('category');
         res.json(categories);

@@ -24,4 +24,25 @@ router.post('/', async (req, res) => {
     }
 });
 
+router.get('/check', async (req, res) =>
+{
+    try
+    {
+        const username = req.query.name ? String(req.query.name).trim() : "";
+
+        if (!username) {
+            console.log("Got to this!")
+            return res.status(400).json({message: 'No username found.'});
+        }
+
+        const userExists = await User.exists({name: {$regex: new RegExp(`^${username}$`, 'i')}}); // This should check if the username exists regardless of casing.
+        return res.json({exists: userExists !== null});
+    }
+    catch(error: any)
+    {
+        console.error(error);
+        return res.status(500).json({ error: error.message });
+    }
+});
+
 export default router;

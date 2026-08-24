@@ -23,9 +23,9 @@ export default function Home() {
 
     return (
         <>
-            <h1>Home Page</h1>
-            {categories.map((category) => (
-                <CategoryCard key={category} category={category}/>
+            <h1>Trivia's John</h1>
+            {categories.map((category, i) => (
+                <CategoryCard key={i} category={category}/>
             ))}
         </>
     );

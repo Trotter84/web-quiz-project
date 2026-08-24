@@ -9,8 +9,6 @@ function SignUp()
 {
     const [usernameValue, setUsernameValue] = useState("");
 
-    const [passwordValue, setPasswordValue] = useState("");
-
     const [errorMessage, setErrorMessage] = useState("");
 
     const navigate = useNavigate();
@@ -45,8 +43,6 @@ function SignUp()
             <h1>Sign Up</h1>
             <label>Username:</label>
             <input type="text" value={usernameValue} onChange={(input) => setUsernameValue(input.target.value) }/>
-            <label>Password:</label>
-            <input type="password" value={passwordValue} onChange={(input) => setPasswordValue(input.target.value)}/>
             <button onClick={() => {
                 handleSignUp();
             }

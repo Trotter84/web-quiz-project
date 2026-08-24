@@ -15,9 +15,7 @@ function Login()
 
     const { login } = useUser();
 
-
-
-
+    // should merge the sign up and login pages so you only have to do one.
     const handleLogin = async () =>
     {
         setErrorMessage("");
@@ -28,7 +26,7 @@ function Login()
         {
             login(usernameValue);
             console.log("Logged into " + usernameValue);
-            navigate("/home");
+            navigate("/");
         }
         else
         {

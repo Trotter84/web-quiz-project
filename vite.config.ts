@@ -8,4 +8,14 @@ export default defineConfig({
     react(),
     babel({ presets: [reactCompilerPreset()] })
   ],
+  server: {
+    proxy: {
+      // Intercept any request starting with /api and forward it to Express
+      '/api': {
+        target: 'http://localhost:3000', // Match your Express server port
+        changeOrigin: true,
+        secure: false,
+      },
+    },
+  },
 })

@@ -1,4 +1,6 @@
 import {useState} from "react";
+import {useNavigate} from "react-router-dom";
+import {useUser} from "../context/UserContext.tsx";
 
 
 function Login()
@@ -7,16 +9,29 @@ function Login()
     // I need to use the user input to check and see if they have an existing account. I should only check for username NOT password for now.
     const [usernameValue, setUsernameValue] = useState("");
 
+    const [errorMessage, setErrorMessage] = useState("");
 
-    const [passwordValue, setPasswordValue] = useState("");
+    const navigate = useNavigate();
 
+    const { login } = useUser();
+
+    // should merge the sign up and login pages so you only have to do one.
     const handleLogin = async () =>
     {
-        await fetch("/api/login", { // We need to get the backend server running so we can send the user data to the endpoint and handle the user login logic from there.
-            method: "POST",
-            headers: {"Content-Type": "application/json"},
-            body: JSON.stringify({username:usernameValue, password:passwordValue}),
-        });
+        setErrorMessage("");
+        const response = await fetch("/api/users/check?name=" + usernameValue);
+        const nameJson = await response.json();
+
+        if (nameJson.exists)
+        {
+            login(usernameValue);
+            console.log("Logged into " + usernameValue);
+            navigate("/");
+        }
+        else
+        {
+            setErrorMessage("Username does not exists. Please create an account.");
+        }
     }
 
     return (
@@ -24,13 +39,12 @@ function Login()
             <h1>Login</h1>
             <label>Username:</label>
             <input type="text" value={usernameValue} onChange={(input) => setUsernameValue(input.target.value)}/>
-            <label>Password:</label>
-            <input type="text" value={passwordValue} onChange={(input) => setPasswordValue(input.target.value)}/>
             <button onClick={() => {
                 handleLogin();
             }
             }>Log In
             </button>
+            <p style={{color: "red"}}>{errorMessage}</p>
         </>);
 }
 export default Login;

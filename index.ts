@@ -14,7 +14,7 @@ import dns from 'dns';
 dns.setServers(['8.8.8.8', '1.1.1.1']);
 // =====================================
 
-mongoose.connect('mongodb+srv://gcrichton_db_user:Didq48hWtx5N46gV@cluster0.irlkoas.mongodb.net/Web-Quiz-Project')
+mongoose.connect('mongodb+srv://gcrichton_db_user:7bpB2q3ZANSrPwfA@cluster0.irlkoas.mongodb.net/Web-Quiz-Project')
     .then(() => console.log('MongoDB connected'))
     .catch(err => console.error(err));
 

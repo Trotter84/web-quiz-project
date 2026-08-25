@@ -1,6 +1,6 @@
 import {useState, useEffect} from "react";
 import '../styles/home.css'
-import CategoryCard from "../components/cards/CategoryCard";
+import CategoryCard from "../components/cards/CategoryCard.tsx";
 
 export default function Home() {
     const [categories, setCategories] = useState<string[]>([]);

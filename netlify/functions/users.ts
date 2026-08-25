@@ -1,6 +1,6 @@
 import type {Handler} from '@netlify/functions';
-import {connectToDatabase} from './_lib/db';
-import {User} from './_models/User';
+import {connectToDatabase} from './_lib/db.ts';
+import {User} from './_models/User.ts';
 
 // Handles:
 //   POST /api/users             -> create a user { username }

@@ -1,5 +1,6 @@
 import express from 'express'
-import Word from '../models/Word';
+import Word from '../models/Word.ts';
+
 
 const router = express.Router();
 

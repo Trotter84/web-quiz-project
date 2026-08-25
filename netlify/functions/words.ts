@@ -1,6 +1,6 @@
 import type {Handler} from '@netlify/functions';
-import {connectToDatabase} from './_lib/db';
-import Word from './_models/Word';
+import {connectToDatabase} from './_lib/db.ts';
+import Word from './_models/Word.ts';
 
 // Handles:
 //   GET /api/words             -> all words

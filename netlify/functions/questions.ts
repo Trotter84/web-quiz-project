@@ -1,6 +1,6 @@
 import type {Handler} from '@netlify/functions';
-import {connectToDatabase} from './_lib/db';
-import Question from './_models/Question';
+import {connectToDatabase} from './_lib/db.ts';
+import Question from './_models/Question.ts';
 
 // Handles:
 //   GET /api/questions                -> all questions

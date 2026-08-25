@@ -54,81 +54,111 @@ function pickRoundType(): RoundType {
 }
 
 export default function QuizContainer() {
+    const [loading, setLoading] = useState(true);
     const [words, setWords] = useState<Word[]>([]);
     const [activeWord, setActiveWord] = useState<Word | null>(null);
     const [activeQuestion, setActiveQuestion] = useState<Question | null>(null);
     const [questions, setQuestions] = useState<Question[]>([]);
     const [roundType, setRoundType] = useState<RoundType>(() => pickRoundType());
     const [phase, setPhase] = useState<Phase>("playing");
-
+    const [roundCount, setRoundCount] = useState<number>(0);
 
     useEffect(() => {
-        const getAllWords = async () => {
+        const getQuizData = async () => {
             try {
-                const res = await fetch("/api/words", {
-                    method: "GET",
-                    headers: {"Content-Type": "application/json"},
-                });
-                const data: Word[] = await res.json();
-                setWords(data.filter(w => w.category === "programming"));
+                const [wordsRes, questionsRes] = await Promise.all([
+                    fetch("/api/words", {
+                        method: "GET",
+                        headers: {
+                            "Content-Type": "application/json",
+                        },
+                    }),
+                    fetch("/api/questions", {
+                        method: "GET",
+                        headers: {
+                            "Content-Type": "application/json",
+                        },
+                    }),
+                ]);
+
+                if (!wordsRes.ok) {
+                    throw new Error(
+                        `Failed to fetch words: ${wordsRes.status}`
+                    );
+                }
+                if (!questionsRes.ok) {
+                    throw new Error(
+                        `Failed to fetch questions: ${questionsRes.status}`
+                    );
+                }
+                const wordsData: Word[] = await wordsRes.json();
+                const questionsData: Question[] = await questionsRes.json();
+
+                setWords(wordsData.filter((word) => word.category === "programming"));
+                setQuestions(questionsData.filter((question) => question.category === "programming"));
             } catch (err) {
-                console.error("Failed to fetch words:", err);
+                console.error("Failed to fetch quiz data:", err);
+            } finally {
+                setLoading(false);
             }
         };
-        const getAllQuestions = async () => {
-            try {
-                const res = await fetch("/api/questions", {
-                    method: "GET",
-                    headers: {"Content-Type": "application/json"},
-                });
-                const data: Question[] = await res.json();
-                setQuestions(data.filter(q => q.category === "programming"));
-            } catch (err) {
-                console.error("Failed to fetch questions", err);
-            }
-        };
-        getAllWords();
-        getAllQuestions();
+        getQuizData();
     }, []);
 
     useEffect(() => {
-        if (activeWord !== null || activeQuestion !== null || phase !== "playing") {
+        if (loading || phase !== "playing") {
+            return;
+        }
+        if (activeWord !== null || activeQuestion !== null) {
             return;
         }
         if (roundType === "keyword" && words.length > 0) {
             // eslint-disable-next-line react-hooks/set-state-in-effect
             setActiveWord(pickRandom(words));
         } else if (roundType === "multipleChoice" && questions.length > 0) {
-            setActiveQuestion(pickRandom(questions))
+            setActiveQuestion(pickRandom(questions));
         }
-    }, [words, questions, activeWord, activeQuestion, roundType, phase]);
+    }, [loading, words, questions, activeWord, activeQuestion, roundType, phase]);
 
     const startNextRound = useCallback(() => {
-        const nextType = pickRoundType();
-        setRoundType(nextType);
+        setRoundType(pickRoundType());
         setActiveWord(null);
         setActiveQuestion(null);
-
-        if (nextType === "keyword") {
-            setActiveWord(pickRandom(words));
-        } else {
-            setActiveQuestion(pickRandom(questions))
-        }
         setPhase("playing");
-    }, [words, questions])
+    }, [])
 
     const handleRoundComplete = useCallback(() => {
         setPhase("reveal");
-        setTimeout(() => {
+// TODO: delete later
+        setRoundCount((prev) => {
+            const next = prev + 1;
+            console.log(`Round count: ${next}`)
+            return next;
+        });
+
+        const timeoutId = window.setTimeout(() => {
             startNextRound();
         }, SECONDS_BEFORE_CONTINUING * 1000);
+        return () => {
+            window.clearTimeout(timeoutId);
+        };
     }, [startNextRound])
 
-    const isLoading = (roundType === "keyword" && !activeWord && words.length === 0) || (roundType === "multipleChoice" && !activeQuestion && questions.length === 0);
+    const isLoading = loading ||
+        (roundType === "keyword" && activeWord === null && words.length === 0) ||
+        (roundType === "multipleChoice" && activeQuestion === null && questions.length === 0);
+
+    const noQuizContent = !loading && (
+        (roundType === "keyword" && words.length === 0) ||
+        (roundType === "multipleChoice" && questions.length === 0)
+    );
 
     return (
         <>
             {isLoading && <p>Loading quiz...</p>}
+            {noQuizContent && (
+                <p>No {activeWord?.category !== null ? activeWord?.category : activeQuestion?.category} quiz content is available.</p>
+            )}
             {!isLoading && roundType === "keyword" && activeWord && (
                 <KeywordTyping
                     key={activeWord._id}
@@ -146,6 +176,8 @@ export default function QuizContainer() {
                     onComplete={handleRoundComplete}
                 />
             )}
+            {/*TODO: delete after testing*/}
+            <p>Rounds completed: {roundCount}</p>
         </>
     );
 }
@@ -165,10 +197,7 @@ export function KeywordTyping({word, fact, onComplete}: KeywordTypingProps) {
     });
 
     const {totalMilliseconds, isRunning, pause} = useTimer({
-        expiryTimestamp,
-        autoStart: true,
-        interval: 20,
-        onExpire: () => {
+        expiryTimestamp, autoStart: true, interval: 20, onExpire: () => {
             if (!revealed) {
                 setRevealed(true);
                 onComplete();
@@ -214,7 +243,12 @@ export function KeywordTyping({word, fact, onComplete}: KeywordTypingProps) {
     );
 }
 
-export function MultipleChoice({question, possibleAnswers, rightAnswer, onComplete}: MultipleChoiceProps) {
+export function MultipleChoice({
+                                   question,
+                                   possibleAnswers,
+                                   rightAnswer,
+                                   onComplete
+                               }: MultipleChoiceProps) {
     const [selected, setSelected] = useState<string | null>(null);
     const [timedOut, setTimedOut] = useState<boolean>(false);
     const [locked, setLocked] = useState<boolean>(false);
@@ -228,10 +262,7 @@ export function MultipleChoice({question, possibleAnswers, rightAnswer, onComple
     });
 
     const {totalMilliseconds, isRunning, pause} = useTimer({
-        expiryTimestamp,
-        autoStart: true,
-        interval: 20,
-        onExpire: () => {
+        expiryTimestamp, autoStart: true, interval: 20, onExpire: () => {
             setTimedOut(true);
             setLocked(true);
             onComplete();
@@ -254,16 +285,29 @@ export function MultipleChoice({question, possibleAnswers, rightAnswer, onComple
                 <h3>{question}</h3>
             </div>
             <div>
-                {possibleAnswers.map((choice) => (
-                    <button
-                        key={choice}
-                        onClick={() => checkAnswer(choice)}
-                        disabled={locked}
-                        className={"answer" + (!locked ? "" : choice === rightAnswer ? "-correct" : choice === selected ? "-incorrect" : "")}
-                    >
-                        {choice}
-                    </button>
-                ))}
+                {possibleAnswers.map((choice) => {
+                    const isCorrectAnswer = choice === rightAnswer;
+                    const isSelectedAnswer = choice === selected;
+                    let buttonClass = "answer";
+                    if (locked) {
+                        if (isCorrectAnswer) {
+                            buttonClass = "answer-correct";
+                        } else if (isSelectedAnswer) {
+                            buttonClass = "answer-incorrect";
+                        }
+                    }
+
+                    return (
+                        <button
+                            key={choice}
+                            onClick={() => checkAnswer(choice)}
+                            disabled={locked}
+                            className={buttonClass}
+                        >
+                            {choice}
+                        </button>
+                    )
+                })}
             </div>
             {locked && (
                 <p>

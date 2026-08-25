@@ -1,4 +1,5 @@
 import {useCallback, useEffect, useState} from "react";
+import {useParams} from "react-router-dom";
 import {useTimer} from "react-timer-hook";
 
 import '../styles/quizScreen.css';
@@ -54,14 +55,20 @@ function pickRoundType(): RoundType {
 }
 
 export default function QuizContainer() {
-    const [loading, setLoading] = useState(true);
+    const {category} = useParams<{ category: string }>();
+
     const [words, setWords] = useState<Word[]>([]);
     const [activeWord, setActiveWord] = useState<Word | null>(null);
+
     const [activeQuestion, setActiveQuestion] = useState<Question | null>(null);
     const [questions, setQuestions] = useState<Question[]>([]);
+
     const [roundType, setRoundType] = useState<RoundType>(() => pickRoundType());
+
     const [phase, setPhase] = useState<Phase>("playing");
-    const [roundCount, setRoundCount] = useState<number>(0);
+    const [roundCount, setRoundCount] = useState<number>(1);
+    const [loading, setLoading] = useState(true);
+
 
     useEffect(() => {
         const getQuizData = async () => {
@@ -94,8 +101,8 @@ export default function QuizContainer() {
                 const wordsData: Word[] = await wordsRes.json();
                 const questionsData: Question[] = await questionsRes.json();
 
-                setWords(wordsData.filter((word) => word.category === "programming"));
-                setQuestions(questionsData.filter((question) => question.category === "programming"));
+                setWords(wordsData.filter((word) => word.category === category));
+                setQuestions(questionsData.filter((question) => question.category === category));
             } catch (err) {
                 console.error("Failed to fetch quiz data:", err);
             } finally {
@@ -103,7 +110,7 @@ export default function QuizContainer() {
             }
         };
         getQuizData();
-    }, []);
+    }, [category]);
 
     useEffect(() => {
         if (loading || phase !== "playing") {
@@ -129,11 +136,8 @@ export default function QuizContainer() {
 
     const handleRoundComplete = useCallback(() => {
         setPhase("reveal");
-// TODO: delete later
         setRoundCount((prev) => {
-            const next = prev + 1;
-            console.log(`Round count: ${next}`)
-            return next;
+            return prev + 1;
         });
 
         const timeoutId = window.setTimeout(() => {
@@ -144,40 +148,41 @@ export default function QuizContainer() {
         };
     }, [startNextRound])
 
-    const isLoading = loading ||
-        (roundType === "keyword" && activeWord === null && words.length === 0) ||
-        (roundType === "multipleChoice" && activeQuestion === null && questions.length === 0);
+    const noQuizContent =
+        !loading &&
+        ((roundType === "keyword" && words.length === 0) ||
+            (roundType === "multipleChoice" && questions.length === 0));
 
-    const noQuizContent = !loading && (
-        (roundType === "keyword" && words.length === 0) ||
-        (roundType === "multipleChoice" && questions.length === 0)
-    );
+    const displayCategory = category ? category.charAt(0).toUpperCase() + category.slice(1) : "";
 
     return (
         <>
-            {isLoading && <p>Loading quiz...</p>}
-            {noQuizContent && (
-                <p>No {activeWord?.category !== null ? activeWord?.category : activeQuestion?.category} quiz content is available.</p>
+            {loading ? (
+                <p>Loading quiz...</p>
+            ) : noQuizContent ? (
+                <p>No quiz content is available.</p>
+            ) : (
+                <>
+                    <h2>{displayCategory} Quiz</h2>
+                    {roundType === "keyword" && activeWord ? (
+                        <KeywordTyping
+                            key={activeWord._id}
+                            word={activeWord.word}
+                            fact={activeWord.fact}
+                            onComplete={handleRoundComplete}
+                        />
+                    ) : roundType === "multipleChoice" && activeQuestion ? (
+                        <MultipleChoice
+                            key={activeQuestion._id}
+                            question={activeQuestion.question}
+                            possibleAnswers={activeQuestion.possible_answers}
+                            rightAnswer={activeQuestion.right_answer}
+                            onComplete={handleRoundComplete}
+                        />
+                    ) : null}
+                    <p>Round: {roundCount}</p>
+                </>
             )}
-            {!isLoading && roundType === "keyword" && activeWord && (
-                <KeywordTyping
-                    key={activeWord._id}
-                    word={activeWord.word}
-                    fact={activeWord.fact}
-                    onComplete={handleRoundComplete}
-                />
-            )}
-            {!isLoading && roundType === "multipleChoice" && activeQuestion && (
-                <MultipleChoice
-                    key={activeQuestion._id}
-                    question={activeQuestion.question}
-                    possibleAnswers={activeQuestion.possible_answers}
-                    rightAnswer={activeQuestion.right_answer}
-                    onComplete={handleRoundComplete}
-                />
-            )}
-            {/*TODO: delete after testing*/}
-            <p>Rounds completed: {roundCount}</p>
         </>
     );
 }

@@ -13,7 +13,6 @@
     "allowArbitraryExtensions": true,
     "skipLibCheck": true,
     /* Bundler mode */
-    "moduleResolution": "bundler",
     "module": "nodenext",
     "allowImportingTsExtensions": true,
     "verbatimModuleSyntax": true,

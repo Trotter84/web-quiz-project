@@ -1,34 +1,38 @@
-import express from 'express'
-import cors from "cors";
+import 'dotenv/config';
+import express from 'express';
+import cors from 'cors';
 import mongoose from 'mongoose';
 
-const app = express();
-const PORT = 3000;
 import userRoutes from './src/routes/userRoutes';
 import questionRoutes from './src/routes/questionRoutes';
 import wordRoutes from './src/routes/wordRoutes';
 
-// If you get errors, comment this out.
-import dns from 'dns';
+const app = express();
+const PORT = process.env.PORT || 3000;
 
-dns.setServers(['8.8.8.8', '1.1.1.1']);
-// =====================================
+const CONNECTION_URL = process.env.CONNECTION_URL;
+if (!CONNECTION_URL) {
+    throw new Error('CONNECTION_URL is not set. Copy .env.example to .env and fill it in.');
+}
 
-mongoose.connect('mongodb+srv://gcrichton_db_user:7bpB2q3ZANSrPwfA@cluster0.irlkoas.mongodb.net/Web-Quiz-Project')
+mongoose
+    .connect(CONNECTION_URL, {
+        dbName: process.env.DB_NAME || 'Web-Quiz-Project',
+    })
     .then(() => console.log('MongoDB connected'))
-    .catch(err => console.error(err));
-
+    .catch((err) => console.error(err));
 
 app.use(cors());
 app.use(express.json());
 
 app.get('/', (req, res) => {
-    res.json({message: 'API is running!'})
+    res.json({message: 'API is running!'});
 });
 
 app.use('/api/users', userRoutes);
 app.use('/api/questions', questionRoutes);
 app.use('/api/words', wordRoutes);
+
 app.listen(PORT, () => {
     console.log(`Server running at http://localhost:${PORT}`);
 });

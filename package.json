@@ -13,6 +13,7 @@
   },
   "dependencies": {
     "cors": "^2.8.6",
+    "dotenv": "^17.4.2",
     "express": "^5.2.1",
     "mongoose": "^9.9.3",
     "react": "^19.2.8",
@@ -23,6 +24,7 @@
   "devDependencies": {
     "@babel/core": "^7.29.7",
     "@eslint/js": "^10.0.1",
+    "@netlify/functions": "^6.0.0",
     "@rolldown/plugin-babel": "^0.2.3",
     "@types/babel__core": "^7.20.5",
     "@types/cors": "^2.8.19",

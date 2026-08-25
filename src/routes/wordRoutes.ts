@@ -3,6 +3,7 @@ import Word from '../models/Word';
 
 const router = express.Router();
 
+// @ts-ignore
 router.get('/', async (req, res) => {
     try {
         const words = await Word.find();

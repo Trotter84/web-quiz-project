@@ -1,0 +1,46 @@
+[build]
+command = "tsc -b && vite build"
+publish = "dist"
+functions = "netlify/functions"
+
+[functions]
+node_bundler = "esbuild"
+
+# Rewrite /api/<fn> and /api/<fn>/<param> to the matching function,
+# so the frontend's existing fetch("/api/questions") calls keep working
+# unchanged.
+[[redirects]]
+from = "/api/questions/*"
+to = "/.netlify/functions/questions/:splat"
+status = 200
+
+[[redirects]]
+from = "/api/questions"
+to = "/.netlify/functions/questions"
+status = 200
+
+[[redirects]]
+from = "/api/words/*"
+to = "/.netlify/functions/words/:splat"
+status = 200
+
+[[redirects]]
+from = "/api/words"
+to = "/.netlify/functions/words"
+status = 200
+
+[[redirects]]
+from = "/api/users/*"
+to = "/.netlify/functions/users/:splat"
+status = 200
+
+[[redirects]]
+from = "/api/users"
+to = "/.netlify/functions/users"
+status = 200
+
+# SPA fallback: let react-router handle any other client-side route
+[[redirects]]
+from = "/*"
+to = "/index.html"
+status = 200

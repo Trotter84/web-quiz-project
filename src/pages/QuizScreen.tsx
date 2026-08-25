@@ -1,4 +1,4 @@
-import {type JSX, useCallback, useEffect, useState} from "react";
+import {useCallback, useEffect, useState} from "react";
 import {useTimer} from "react-timer-hook";
 
 import '../styles/quizScreen.css';
@@ -53,7 +53,7 @@ function pickRoundType(): RoundType {
     return Math.random() < KEYWORD_TYPING_WEIGHT ? "keyword" : "multipleChoice";
 }
 
-export default function QuizContainer(): JSX.Element {
+export default function QuizContainer() {
     const [words, setWords] = useState<Word[]>([]);
     const [activeWord, setActiveWord] = useState<Word | null>(null);
     const [activeQuestion, setActiveQuestion] = useState<Question | null>(null);
@@ -96,6 +96,7 @@ export default function QuizContainer(): JSX.Element {
             return;
         }
         if (roundType === "keyword" && words.length > 0) {
+            // eslint-disable-next-line react-hooks/set-state-in-effect
             setActiveWord(pickRandom(words));
         } else if (roundType === "multipleChoice" && questions.length > 0) {
             setActiveQuestion(pickRandom(questions))
@@ -150,7 +151,7 @@ export default function QuizContainer(): JSX.Element {
 }
 
 
-export function KeywordTyping({word, fact, onComplete}: KeywordTypingProps): JSX.Element {
+export function KeywordTyping({word, fact, onComplete}: KeywordTypingProps) {
     const [input, setInput] = useState<string>("");
     const [revealed, setRevealed] = useState<boolean>(false);
     const isCorrect: boolean = input.trim().toLowerCase() === word.toLowerCase();
@@ -177,6 +178,7 @@ export function KeywordTyping({word, fact, onComplete}: KeywordTypingProps): JSX
 
     useEffect(() => {
         if (isCorrect && !revealed) {
+            // eslint-disable-next-line react-hooks/set-state-in-effect
             setRevealed(true);
             pause();
             onComplete();
@@ -212,7 +214,7 @@ export function KeywordTyping({word, fact, onComplete}: KeywordTypingProps): JSX
     );
 }
 
-export function MultipleChoice({question, possibleAnswers, rightAnswer, onComplete}: MultipleChoiceProps): JSX.Element {
+export function MultipleChoice({question, possibleAnswers, rightAnswer, onComplete}: MultipleChoiceProps) {
     const [selected, setSelected] = useState<string | null>(null);
     const [timedOut, setTimedOut] = useState<boolean>(false);
     const [locked, setLocked] = useState<boolean>(false);

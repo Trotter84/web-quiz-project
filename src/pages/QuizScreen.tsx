@@ -132,13 +132,13 @@ export default function QuizContainer() {
         setActiveWord(null);
         setActiveQuestion(null);
         setPhase("playing");
+        setRoundCount((prev) => {
+            return prev + 1;
+        });
     }, [])
 
     const handleRoundComplete = useCallback(() => {
         setPhase("reveal");
-        setRoundCount((prev) => {
-            return prev + 1;
-        });
 
         const timeoutId = window.setTimeout(() => {
             startNextRound();

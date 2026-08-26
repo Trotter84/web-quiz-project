@@ -1,0 +1,43 @@
+h1 {
+    color: #f0f0f0;
+    font-size: 56px;
+    font-weight: 800;
+    text-align: center;
+    padding: 20px 0 10px;
+}
+
+label {
+    display: block;
+    text-align: center;
+    color: #cfc4d9;
+    font-size: 18px;
+    padding-bottom: 10px;
+}
+
+input[type="text"] {
+    display: block;
+    width: 100%;
+    padding: 12px 16px;
+    background-color: #2e2e2e;
+    border: 2px solid #ffffff;
+    color: #ffffff;
+    font-size: 16px;
+    outline: none;
+}
+
+button,
+input[type="submit"] {
+    display: block;
+    width: 100%;
+    padding: 10px 0;
+    background-color: #7d7d7d;
+    color: #ffffff;
+    font-size: 16px;
+    border: 1px solid #999;
+    cursor: pointer;
+}
+
+button:hover,
+input[type="submit"]:hover {
+    background-color: #8f8f8f;
+}

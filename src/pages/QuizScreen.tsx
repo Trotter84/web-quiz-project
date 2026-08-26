@@ -222,7 +222,7 @@ export function KeywordTyping({word, fact, onComplete}: KeywordTypingProps) {
     return (
         <>
             <div>
-                <h3>{word}</h3>
+                <h3 className="question-word-text">{word}</h3>
             </div>
             <div>
                 {revealed ?
@@ -237,6 +237,7 @@ export function KeywordTyping({word, fact, onComplete}: KeywordTypingProps) {
                             onChange={(e) => setInput(e.target.value)}
                             placeholder={word}
                             autoFocus
+                            className="answer-box answer-text"
                         />
                     )}
             </div>
@@ -287,7 +288,7 @@ export function MultipleChoice({
     return (
         <>
             <div>
-                <h3>{question}</h3>
+                <h3 className="question-word-text">{question}</h3>
             </div>
             <div>
                 {possibleAnswers.map((choice) => {

@@ -1,9 +1,9 @@
 import {useCallback, useEffect, useState} from "react";
 import {useParams} from "react-router-dom";
-import {useTimer} from "react-timer-hook";
 
-import '../styles/quizScreen.css';
-import Countdown from '../components/countdown.tsx';
+import "../styles/quizScreen.css";
+import Typing from "../components/quizes/Typing.tsx";
+import {MultipleChoice} from "../components/quizes/MultipleChoice.tsx";
 
 
 interface Word {
@@ -21,18 +21,6 @@ interface Question {
     category: string;
 }
 
-interface KeywordTypingProps {
-    word: string;
-    fact: string;
-    onComplete: () => void;
-}
-
-interface MultipleChoiceProps {
-    question: string;
-    possibleAnswers: string[];
-    rightAnswer: string;
-    onComplete: () => void;
-}
 
 const KEYWORD_TYPING_WEIGHT = 0.5;
 const TYPING_TIME_LIMIT_SECONDS = 5;
@@ -165,10 +153,11 @@ export default function QuizContainer() {
                 <>
                     <h2>{displayCategory} Quiz</h2>
                     {roundType === "keyword" && activeWord ? (
-                        <KeywordTyping
+                        <Typing
                             key={activeWord._id}
                             word={activeWord.word}
                             fact={activeWord.fact}
+                            TYPING_TIME_LIMIT_SECONDS={TYPING_TIME_LIMIT_SECONDS}
                             onComplete={handleRoundComplete}
                         />
                     ) : roundType === "multipleChoice" && activeQuestion ? (
@@ -177,152 +166,13 @@ export default function QuizContainer() {
                             question={activeQuestion.question}
                             possibleAnswers={activeQuestion.possible_answers}
                             rightAnswer={activeQuestion.right_answer}
+                            CHOICE_TIME_LIMIT_SECONDS={CHOICE_TIME_LIMIT_SECONDS}
                             onComplete={handleRoundComplete}
                         />
                     ) : null}
                     <p>Round: {roundCount}</p>
                 </>
             )}
-        </>
-    );
-}
-
-
-export function KeywordTyping({word, fact, onComplete}: KeywordTypingProps) {
-    const [input, setInput] = useState<string>("");
-    const [revealed, setRevealed] = useState<boolean>(false);
-    const isCorrect: boolean = input.trim().toLowerCase() === word.toLowerCase();
-
-    const [expiryTimestamp] = useState(() => {
-        const time = new Date();
-        time.setMilliseconds(
-            time.getMilliseconds() + TYPING_TIME_LIMIT_SECONDS * 1000
-        );
-        return time;
-    });
-
-    const {totalMilliseconds, isRunning, pause} = useTimer({
-        expiryTimestamp, autoStart: true, interval: 20, onExpire: () => {
-            if (!revealed) {
-                setRevealed(true);
-                onComplete();
-            }
-        },
-    });
-
-    useEffect(() => {
-        if (isCorrect && !revealed) {
-            // eslint-disable-next-line react-hooks/set-state-in-effect
-            setRevealed(true);
-            pause();
-            onComplete();
-        }
-    }, [isCorrect, revealed, pause, onComplete]);
-
-    return (
-        <>
-            <div>
-                <h3>{word}</h3>
-            </div>
-            <div>
-                {revealed ?
-                    (
-                        <p className='fact-txt'>{fact}</p>
-                    )
-                    :
-                    (
-                        <input
-                            type="text"
-                            value={input}
-                            onChange={(e) => setInput(e.target.value)}
-                            placeholder={word}
-                            autoFocus
-                        />
-                    )}
-            </div>
-            <Countdown
-                totalMilliseconds={totalMilliseconds}
-                isRunning={isRunning}
-            />
-        </>
-    );
-}
-
-export function MultipleChoice({
-                                   question,
-                                   possibleAnswers,
-                                   rightAnswer,
-                                   onComplete
-                               }: MultipleChoiceProps) {
-    const [selected, setSelected] = useState<string | null>(null);
-    const [timedOut, setTimedOut] = useState<boolean>(false);
-    const [locked, setLocked] = useState<boolean>(false);
-
-    const [expiryTimestamp] = useState(() => {
-        const time = new Date();
-        time.setMilliseconds(
-            time.getMilliseconds() + CHOICE_TIME_LIMIT_SECONDS * 1000
-        );
-        return time;
-    });
-
-    const {totalMilliseconds, isRunning, pause} = useTimer({
-        expiryTimestamp, autoStart: true, interval: 20, onExpire: () => {
-            setTimedOut(true);
-            setLocked(true);
-            onComplete();
-        },
-    });
-
-    const checkAnswer = (choice: string) => {
-        if (locked) {
-            return;
-        }
-        setSelected(choice);
-        setLocked(true);
-        pause();
-        onComplete();
-    };
-
-    return (
-        <>
-            <div>
-                <h3>{question}</h3>
-            </div>
-            <div>
-                {possibleAnswers.map((choice) => {
-                    const isCorrectAnswer = choice === rightAnswer;
-                    const isSelectedAnswer = choice === selected;
-                    let buttonClass = "answer";
-                    if (locked) {
-                        if (isCorrectAnswer) {
-                            buttonClass = "answer-correct";
-                        } else if (isSelectedAnswer) {
-                            buttonClass = "answer-incorrect";
-                        }
-                    }
-
-                    return (
-                        <button
-                            key={choice}
-                            onClick={() => checkAnswer(choice)}
-                            disabled={locked}
-                            className={buttonClass}
-                        >
-                            {choice}
-                        </button>
-                    )
-                })}
-            </div>
-            {locked && (
-                <p>
-                    {timedOut ? `The correct answer was: "${rightAnswer}".` : selected === rightAnswer ? "Correct!" : `The answer was "${rightAnswer}".`}
-                </p>
-            )}
-            <Countdown
-                totalMilliseconds={totalMilliseconds}
-                isRunning={isRunning}
-            />
         </>
     );
 }

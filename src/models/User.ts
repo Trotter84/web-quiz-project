@@ -15,7 +15,7 @@ export interface IUser extends Document {
 
 
 const userSchema = new Schema<IUser>({
-    name: { type: String, required: true },
+    name: { type: String, required: true, unique: true},
     password: { type: String, required: false },
     top_scores: {
         timed_score: { type: Number, required: false, default: 0 },

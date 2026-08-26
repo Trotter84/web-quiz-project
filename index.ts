@@ -2,6 +2,8 @@ import 'dotenv/config';
 import express from 'express';
 import cors from 'cors';
 import mongoose from 'mongoose';
+import { createServer } from 'http';
+import { Server } from 'socket.io';
 
 import userRoutes from './src/routes/userRoutes';
 import questionRoutes from './src/routes/questionRoutes';
@@ -33,6 +35,21 @@ app.use('/api/users', userRoutes);
 app.use('/api/questions', questionRoutes);
 app.use('/api/words', wordRoutes);
 
-app.listen(PORT, () => {
-    console.log(`Server running at http://localhost:${PORT}`);
+const httpServer = createServer(app);
+
+const io = new Server(httpServer, {
+    cors: {
+        origin: process.env.CLIENT_URL || 'http://localhost:5173', methods: ['GET', 'POST'],
+    },
 });
+
+io.on('connection', (socket) => {
+    console.log('Client connected. Socket ID: ' + socket.id);
+    socket.on('disconnect', (reason) => {console.log('Socket disconnected. Socket ID: ' + socket.id, reason);});
+});
+
+httpServer.listen(PORT, () => {
+    console.log(`Server started on port ${PORT}`);
+});
+
+export { io };

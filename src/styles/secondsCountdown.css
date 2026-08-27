@@ -1,0 +1,31 @@
+.seconds-countdown {
+    font-size: 2rem;
+    font-weight: bold;
+    text-align: center;
+    color: goldenrod;
+}
+
+.seconds-countdown.active {
+    color: #ff4d4f;
+}
+
+.number {
+    display: inline-block;
+    animation: pop-in 1s ease-in-out forwards;
+}
+
+@keyframes pop-in {
+    from {
+        transform: scale(0.0);
+        opacity: 0;
+    }
+    60% {
+        transform: scale(1);
+        opacity: 1;
+
+    }
+    to {
+        transform: scale(1.5);
+        opacity: 0;
+    }
+}

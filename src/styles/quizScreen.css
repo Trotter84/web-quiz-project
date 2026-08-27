@@ -1,3 +1,10 @@
 .fact-txt {
     font-size: 1.3rem;
 }
+
+.nxt-round-container {
+    display: flex;
+    flex-direction: row;
+    margin: 1rem auto;
+    align-items: baseline;
+}

@@ -4,6 +4,8 @@ import {useParams} from "react-router-dom";
 import "../styles/quizScreen.css";
 import Typing from "../components/quizes/Typing.tsx";
 import {MultipleChoice} from "../components/quizes/MultipleChoice.tsx";
+import {useTimer} from "react-timer-hook";
+import SecondsCountdown from "../components/secondsCountdown.tsx";
 
 
 interface Word {
@@ -125,16 +127,27 @@ export default function QuizContainer() {
         });
     }, [])
 
+    function getExpiryTimestamp(seconds: number) {
+        const time = new Date();
+        time.setMilliseconds(time.getMilliseconds() + seconds * 1000);
+        return time;
+    }
+
+    const {totalMilliseconds, isRunning, restart} = useTimer({
+        expiryTimestamp: getExpiryTimestamp(SECONDS_BEFORE_CONTINUING),
+        autoStart: false,
+        interval: 20,
+        onExpire: () => {
+            window.setTimeout(() => {
+                startNextRound();
+            }, 1000);
+        },
+    });
+
     const handleRoundComplete = useCallback(() => {
         setPhase("reveal");
-
-        const timeoutId = window.setTimeout(() => {
-            startNextRound();
-        }, SECONDS_BEFORE_CONTINUING * 1000);
-        return () => {
-            window.clearTimeout(timeoutId);
-        };
-    }, [startNextRound])
+        restart(getExpiryTimestamp(SECONDS_BEFORE_CONTINUING));
+    }, [restart]);
 
     const noQuizContent =
         !loading &&
@@ -170,6 +183,19 @@ export default function QuizContainer() {
                             onComplete={handleRoundComplete}
                         />
                     ) : null}
+
+
+                    {phase === "reveal" ? (
+                        <div className="nxt-round-container">
+                            <p>Next round start in&nbsp;&nbsp;</p>
+                            <SecondsCountdown
+                                totalMilliseconds={totalMilliseconds}
+                                isRunning={isRunning}
+                            />
+                        </div>
+                    ) : (
+                        ""
+                    )}
                     <p>Round: {roundCount}</p>
                 </>
             )}

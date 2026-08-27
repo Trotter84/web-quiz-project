@@ -1,0 +1,23 @@
+.cards {
+    display: inline-block;
+    text-decoration: none;
+    font-family: "Century Gothic", "Futura", "Trebuchet MS", sans-serif;
+    color: #F5F5F5;
+    background: #01110A;
+    border: solid 3px #FFFFFF;
+    border-radius: 5px;
+    padding: 20px;
+    margin: 20px auto;
+    width: 150px;
+    height: 50px;
+    align-self: center;
+    align-content: center;
+}
+
+.cards:hover {
+    background: #C179B9;
+    color: #01110A;
+    border-color: #C179B9;
+    transform: scale(1.03);
+    box-shadow: 0 4px 12px rgba(193, 121, 185, 0.4);
+}

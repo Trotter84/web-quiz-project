@@ -105,13 +105,9 @@ io.on('connection', (socket) => {
     });
 });
 
-// io.on('connection', (socket) => {
-//     console.log('Client connected. Socket ID: ' + socket.id);
-//     socket.on('disconnect', (reason) => {console.log('Socket disconnected. Socket ID: ' + socket.id, reason);});
-// });
-//
-// httpServer.listen(PORT, () => {
-//     console.log(`Server started on port ${PORT}`);
-// });
+
+httpServer.listen(PORT, () => {
+    console.log(`Server started on port ${PORT}`);
+});
 
 export { io };

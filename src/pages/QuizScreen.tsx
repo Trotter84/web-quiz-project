@@ -180,7 +180,7 @@ export default function QuizContainer() {
                             onComplete={handleRoundComplete}
                         />
                     ) : null}
-                    <p>Round: {roundCount}</p>
+                    <p className="round">Round: {roundCount}</p>
                 </>
             )}
         </>
@@ -227,7 +227,7 @@ export function KeywordTyping({word, fact, onComplete}: KeywordTypingProps) {
             <div>
                 {revealed ?
                     (
-                        <p className='fact-txt'>{fact}</p>
+                        <p className="description">{fact}</p>
                     )
                     :
                     (
@@ -316,7 +316,8 @@ export function MultipleChoice({
                 })}
             </div>
             {locked && (
-                <p>
+                <p
+                    className="description">
                     {timedOut ? `The correct answer was: "${rightAnswer}".` : selected === rightAnswer ? "Correct!" : `The answer was "${rightAnswer}".`}
                 </p>
             )}

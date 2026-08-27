@@ -1,6 +1,6 @@
 import {Route, Routes} from 'react-router-dom'
-import { UserProvider } from "./context/UserContext.tsx";
-import './styles/App.css'
+import {UserProvider} from "./context/UserContext.tsx";
+import './styles/app.css'
 
 import Home from './pages/Home.tsx'
 import SignUp from "./pages/SignUp.tsx";

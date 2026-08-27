@@ -2,11 +2,11 @@
     font-size: 2rem;
     font-weight: bold;
     text-align: center;
-    color: goldenrod;
+    color: var(--gold);
 }
 
 .seconds-countdown.active {
-    color: #ff4d4f;
+    color: var(--red);
 }
 
 .number {

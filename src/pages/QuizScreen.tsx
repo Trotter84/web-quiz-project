@@ -24,11 +24,10 @@ interface Question {
 }
 
 
-const KEYWORD_TYPING_WEIGHT = 0.5;
+const KEYWORD_TYPING_WEIGHT = 0;
 const TYPING_TIME_LIMIT_SECONDS = 5;
 const CHOICE_TIME_LIMIT_SECONDS = 7;
 const SECONDS_BEFORE_CONTINUING = 3;
-//TODO: add a countdown for "${seconds} until next round.."
 
 type RoundType = "keyword" | "multipleChoice";
 type Phase = "playing" | "reveal";
@@ -184,10 +183,11 @@ export default function QuizContainer() {
                         />
                     ) : null}
 
+                    <p className="round-txt">Round: {roundCount}</p>
 
                     {phase === "reveal" ? (
                         <div className="nxt-round-container">
-                            <p>Next round start in&nbsp;&nbsp;</p>
+                            <p>Next round starting in&nbsp;&nbsp;</p>
                             <SecondsCountdown
                                 totalMilliseconds={totalMilliseconds}
                                 isRunning={isRunning}
@@ -196,7 +196,6 @@ export default function QuizContainer() {
                     ) : (
                         ""
                     )}
-                    <p>Round: {roundCount}</p>
                 </>
             )}
         </>

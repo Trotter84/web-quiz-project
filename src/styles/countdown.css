@@ -1,15 +1,12 @@
-/*#6cdaab*/
-
 .countdown {
     margin: 1rem;
     font-size: 1rem;
-    color: var(--text);
+    color: var(--text-h);
     transition: 0.2s;
-    color: #F5F5F5;
     font-family: "Century Gothic", "URW Gothic", "Futura", sans-serif;
 }
 
 .countdown.active {
     font-size: 1.4rem;
-    color: var(--option2);
+    color: var(--red);
 }

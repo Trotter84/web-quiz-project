@@ -2,6 +2,8 @@ import {useState} from "react";
 import {useTimer} from "react-timer-hook";
 import Countdown from "../countdown.tsx";
 
+import "../../styles/multipleChoice.css";
+
 
 interface MultipleChoiceProps {
     question: string;
@@ -51,18 +53,18 @@ export function MultipleChoice({
     return (
         <>
             <div>
-                <h3>{question}</h3>
+                <h3 className="question-txt">{question}</h3>
             </div>
-            <div>
+            <div className="multi-choice-container">
                 {possibleAnswers.map((choice) => {
                     const isCorrectAnswer = choice === rightAnswer;
                     const isSelectedAnswer = choice === selected;
                     let buttonClass = "answer";
                     if (locked) {
                         if (isCorrectAnswer) {
-                            buttonClass = "answer-correct";
+                            buttonClass = "answer correct";
                         } else if (isSelectedAnswer) {
-                            buttonClass = "answer-incorrect";
+                            buttonClass = "answer incorrect";
                         }
                     }
 
@@ -79,7 +81,7 @@ export function MultipleChoice({
                 })}
             </div>
             {locked && (
-                <p>
+                <p className="rightAnswer-txt">
                     {timedOut ? `The correct answer was: "${rightAnswer}".` : selected === rightAnswer ? "Correct!" : `The answer was "${rightAnswer}".`}
                 </p>
             )}

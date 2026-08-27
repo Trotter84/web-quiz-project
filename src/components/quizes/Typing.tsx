@@ -2,6 +2,8 @@ import {useEffect, useState} from "react";
 import {useTimer} from "react-timer-hook";
 import Countdown from "../countdown.tsx";
 
+import "../../styles/typing.css";
+
 
 interface TypingProps {
     word: string;
@@ -44,7 +46,7 @@ export default function Typing({word, fact, TYPING_TIME_LIMIT_SECONDS, onComplet
     return (
         <>
             <div>
-                <h3>{word}</h3>
+                <h3 className="word-txt">{word}</h3>
             </div>
             <div>
                 {revealed ?
@@ -54,6 +56,7 @@ export default function Typing({word, fact, TYPING_TIME_LIMIT_SECONDS, onComplet
                     :
                     (
                         <input
+                            className="word-input"
                             type="text"
                             value={input}
                             onChange={(e) => setInput(e.target.value)}

@@ -1,5 +1,109 @@
-.fact-txt {
-    font-size: 1.3rem;
+body {
+    font-family: Arial, sans-serif;
+    background: #2b0a3d;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    margin: 0;
+}
+
+.answer-box {
+    width: 70%;
+    max-width: 200px;
+    padding: 40px 20px;
+    background-color: #7A4988;
+    border-radius: 4px;
+    text-align: center;
+}
+
+.answer-text {
+    font-family: "Century Gothic", "URW Gothic", "Futura", sans-serif;
+    font-size: 27px;
+    font-weight: bold;
+    color: #F5F5F5;
+    text-shadow: 2px 2px 3px rgba(0, 0, 0, 0.6);
+    margin: 0;
+}
+
+.question-word-text {
+    font-family: "Century Gothic", "URW Gothic", "Futura", sans-serif;
+    font-size: 35px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 32px 32px;
+    border-radius: 8px;
+    width: fit-content;
+    background-color: #01110A;
+    color: #F5F5F5;
+    margin: 250px auto 50px auto;
+}
+
+.answer {
+    text-decoration: none;
+    color: #C179B9;
+    margin: 1rem;
+    font-weight: bold;
+    background: #01110A;
+    border-radius: 2px;
+    border: solid 1px #F5F5F5;
+    width: 300px;
+    font-size: 35px;
+    height: 200px;
+}
+
+.answer:hover {
+    background: #C179B9;
+    color: #01110A;
+    border-color: #C179B9;
+    transform: scale(1.03);
+    cursor: pointer;
+    box-shadow: 0 4px 12px rgba(193, 121, 185, 0.4);
+}
+
+.answer-correct {
+    text-decoration: none;
+    color: #C179B9;
+    margin: 1rem;
+    font-weight: bold;
+    background: #01110A;
+    border-radius: 2px;
+    border: solid 5px green;
+    width: 300px;
+    font-size: 35px;
+    height: 200px;
+    transform: scale(110%);
+}
+
+.answer-incorrect {
+    text-decoration: none;
+    color: #C179B9;
+    margin: 1rem;
+    font-weight: bold;
+    background: #01110A;
+    border-radius: 2px;
+    border: solid 5px red;
+    width: 300px;
+    font-size: 35px;
+    height: 200px;
+    transform: scale(90%);
+}
+
+.description {
+    font-family: "Century Gothic", "URW Gothic", "Futura", sans-serif;
+    color: #F5F5F5;
+}
+
+.round {
+    font-family: "Century Gothic", "URW Gothic", "Futura", sans-serif;
+    color: #C179B9;
+}
+
+.answer:disabled {
+    pointer-events: none;
+    cursor: default;
+    opacity: 0.7;
 }
 
 .nxt-round-container {

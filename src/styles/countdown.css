@@ -5,6 +5,8 @@
     font-size: 1rem;
     color: var(--text);
     transition: 0.2s;
+    color: #F5F5F5;
+    font-family: "Century Gothic", "URW Gothic", "Futura", sans-serif;
 }
 
 .countdown.active {

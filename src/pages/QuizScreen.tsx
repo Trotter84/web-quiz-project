@@ -24,7 +24,7 @@ interface Question {
 }
 
 
-const KEYWORD_TYPING_WEIGHT = 0;
+const KEYWORD_TYPING_WEIGHT = 0.6; // 0.0-1.0 increase the rate of typing vs multiple choice
 const TYPING_TIME_LIMIT_SECONDS = 5;
 const CHOICE_TIME_LIMIT_SECONDS = 7;
 const SECONDS_BEFORE_CONTINUING = 3;

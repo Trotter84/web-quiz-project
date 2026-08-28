@@ -18,7 +18,7 @@ function Login() {
         if (nameJson.exists) {
             login(usernameValue);
             console.log("Logged into " + usernameValue);
-            navigate("/");
+            navigate("/home");
         } else {
             setErrorMessage("Username does not exists. Please create an account.");
         }
@@ -39,6 +39,7 @@ function Login() {
             }}>
                 Log In
             </button>
+            <button onClick={() => navigate("/sign-up")}>Create an Account</button>
             <p className="login-error" style={{color: "red"}}>{errorMessage}</p>
         </div>
     );

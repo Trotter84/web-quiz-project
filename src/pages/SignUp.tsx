@@ -46,6 +46,7 @@ function SignUp() {
             }
             }>Sign Up
             </button>
+            <button onClick={() => {navigate('/login')}}>Login to Account</button>
             <p className="signup-error">{errorMessage}</p>
         </div>);
 }

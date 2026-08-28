@@ -155,7 +155,7 @@ io.on('connection', (socket) => {
         player.answered = true;
         player.answer = answer;
         player.correct = answer !== null && checkAnswerCorrect(room.currentRound, answer);
-        // i need to have the score calc here later
+        //const timeTaken = Date.now() - room.currentRound.startTime; i need to have the score calc here later
 
         callback({ success: true});
 

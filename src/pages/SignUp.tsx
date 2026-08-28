@@ -30,8 +30,7 @@ function SignUp() {
     }
 
 
-    // This is going to be a sign-up header with a username and password input boxes and then Sign up button to store them.
-    // I need to center the elements and make the width of the input boxes smaller
+
     return (
         <div className="signup-page">
             <h1>Sign Up</h1>

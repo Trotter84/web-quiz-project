@@ -10,6 +10,7 @@ import {SocketProvider} from "./context/SocketContext.tsx";
 import Multiplayer from "./pages/Multiplayer.tsx";
 import MultiplayerGame from "./pages/MultiplayerGame.tsx";
 import Lobby from "./pages/Lobby.tsx";
+import ModeSelection from "./pages/ModeSelection.tsx";
 
 
 
@@ -20,13 +21,14 @@ export default function App() {
             <SocketProvider>
                 <Routes>
                     {/*<Route path={'/'} element={<Login/>}/>*/}
-                    <Route path={'/'} element={<Home/>}/>
+                    <Route path={'/home'} element={<Home/>}/>
                     <Route path={'/sign-up'} element={<SignUp/>}/>
                     <Route path={'/login'} element={<Login/>}/>
                     <Route path={'/quiz/:category'} element={<QuizScreen/>}/>
                     <Route path={'/multiplayer'} element={<Multiplayer/>}/>
                     <Route path={'/multiplayer/lobby/:code'} element={<Lobby/>}/>
                     <Route path={'/multiplayer/game/:code'} element={<MultiplayerGame/>}/>
+                    <Route path={'/'} element={<ModeSelection/>}/>
                 </Routes>
             </SocketProvider>
         </UserProvider>

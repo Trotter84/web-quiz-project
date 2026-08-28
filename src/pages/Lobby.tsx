@@ -3,7 +3,7 @@ import { useParams, useLocation } from "react-router-dom";
 import { useSocket } from "../context/SocketContext.tsx";
 
 interface Player {
-    socketId: number;
+    socketId: string;
     name: string;
     score: number;
     answered: boolean;

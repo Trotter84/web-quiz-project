@@ -1,4 +1,4 @@
-import {useState, useEffect, useContext} from "react";
+import {useState, useEffect} from "react";
 import { useNavigate } from "react-router-dom";
 import { useSocket } from "../context/SocketContext.tsx";
 
@@ -24,7 +24,7 @@ export default function Multiplayer()
         {
             const response = await fetch("/api/questions/categories");
             const json = await response.json();
-            setCategories(json.categories);
+            setCategories(json);
             if (json.length > 0) setCategory(json[0]);
         }
         getCategories();
@@ -78,12 +78,12 @@ export default function Multiplayer()
                     <h1>Create Room:</h1>
                     <label>Type a Username:</label>
                     <input type={"text"} value={hostName} onChange={(e) => setHostName(e.target.value)} />
-                    {/*<label>Category:</label>*/}
-                    {/*<select value={category} onChange={(e) => setCategory(e.target.value)}>*/}
-                    {/*    {categories.map((c) => (*/}
-                    {/*        <option key={c} value={c}>{c}</option>*/}
-                    {/*    ))}*/}
-                    {/*</select>*/}
+                    <label>Category:</label>
+                    <select value={category} onChange={(e) => setCategory(e.target.value)}>
+                        {categories.map((c) => (
+                            <option key={c} value={c}>{c}</option>
+                        ))}
+                    </select>
                     <button onClick={handleCreateRoom} disabled={!connected}>Create</button>
                 </>
             ) : (

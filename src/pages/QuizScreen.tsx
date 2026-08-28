@@ -43,6 +43,13 @@ function pickRoundType(): RoundType {
     return Math.random() < KEYWORD_TYPING_WEIGHT ? "keyword" : "multipleChoice";
 }
 
+function getExpiryTimestamp(seconds: number): Date
+{
+    const time = new Date();
+    time.setMilliseconds(time.getMilliseconds() + seconds * 1000);
+    return time;
+}
+
 export default function QuizContainer() {
     const {category} = useParams<{ category: string }>();
 
@@ -58,6 +65,9 @@ export default function QuizContainer() {
     const [roundCount, setRoundCount] = useState<number>(1);
     const [loading, setLoading] = useState(true);
 
+    const [roundExpiry, setRoundExpiry] = useState<Date>(() => getExpiryTimestamp(CHOICE_TIME_LIMIT_SECONDS));
+
+    const [mcRevealed, setMcRevealed] = useState(false);
 
     useEffect(() => {
         const getQuizData = async () => {
@@ -111,8 +121,11 @@ export default function QuizContainer() {
         if (roundType === "keyword" && words.length > 0) {
             // eslint-disable-next-line react-hooks/set-state-in-effect
             setActiveWord(pickRandom(words));
+            setRoundExpiry(getExpiryTimestamp(TYPING_TIME_LIMIT_SECONDS))
         } else if (roundType === "multipleChoice" && questions.length > 0) {
             setActiveQuestion(pickRandom(questions));
+            setRoundExpiry(getExpiryTimestamp(CHOICE_TIME_LIMIT_SECONDS));
+            setMcRevealed(false);
         }
     }, [loading, words, questions, activeWord, activeQuestion, roundType, phase]);
 
@@ -126,11 +139,6 @@ export default function QuizContainer() {
         });
     }, [])
 
-    function getExpiryTimestamp(seconds: number) {
-        const time = new Date();
-        time.setMilliseconds(time.getMilliseconds() + seconds * 1000);
-        return time;
-    }
 
     const {totalMilliseconds, isRunning, restart} = useTimer({
         expiryTimestamp: getExpiryTimestamp(SECONDS_BEFORE_CONTINUING),
@@ -143,10 +151,16 @@ export default function QuizContainer() {
         },
     });
 
-    const handleRoundComplete = useCallback(() => {
+    const handleRoundComplete = useCallback((_correct: boolean) => {
         setPhase("reveal");
         restart(getExpiryTimestamp(SECONDS_BEFORE_CONTINUING));
     }, [restart]);
+
+    const handleMultipleChoiceSelect = useCallback((choice: string | null) => {
+        setMcRevealed(true);
+        const correct = choice !== null && choice === activeQuestion?.right_answer;
+        handleRoundComplete(correct);
+    }, [activeQuestion, handleRoundComplete]);
 
     const noQuizContent =
         !loading &&
@@ -169,7 +183,7 @@ export default function QuizContainer() {
                             key={activeWord._id}
                             word={activeWord.word}
                             fact={activeWord.fact}
-                            TYPING_TIME_LIMIT_SECONDS={TYPING_TIME_LIMIT_SECONDS}
+                            expiryTimestamp={roundExpiry}
                             onComplete={handleRoundComplete}
                         />
                     ) : roundType === "multipleChoice" && activeQuestion ? (
@@ -177,9 +191,10 @@ export default function QuizContainer() {
                             key={activeQuestion._id}
                             question={activeQuestion.question}
                             possibleAnswers={activeQuestion.possible_answers}
-                            rightAnswer={activeQuestion.right_answer}
-                            CHOICE_TIME_LIMIT_SECONDS={CHOICE_TIME_LIMIT_SECONDS}
-                            onComplete={handleRoundComplete}
+                            rightAnswer={mcRevealed ? activeQuestion.right_answer : undefined}
+                            expiryTimestamp={roundExpiry}
+                            revealed={mcRevealed}
+                            onSelect={handleMultipleChoiceSelect}
                         />
                     ) : null}
 

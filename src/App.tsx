@@ -8,6 +8,7 @@ import Login from "./pages/Login.tsx";
 import QuizScreen from "./pages/QuizScreen.tsx";
 import {SocketProvider} from "./context/SocketContext.tsx";
 import Multiplayer from "./pages/Multiplayer.tsx";
+import MultiplayerGame from "./pages/MultiplayerGame.tsx";
 import Lobby from "./pages/Lobby.tsx";
 
 
@@ -25,6 +26,7 @@ export default function App() {
                     <Route path={'/quiz/:category'} element={<QuizScreen/>}/>
                     <Route path={'/multiplayer'} element={<Multiplayer/>}/>
                     <Route path={'/multiplayer/lobby/:code'} element={<Lobby/>}/>
+                    <Route path={'/multiplayer/game/:code'} element={<MultiplayerGame/>}/>
                 </Routes>
             </SocketProvider>
         </UserProvider>

@@ -8,35 +8,31 @@ import "../../styles/multipleChoice.css";
 interface MultipleChoiceProps {
     question: string;
     possibleAnswers: string[];
-    rightAnswer: string;
-    CHOICE_TIME_LIMIT_SECONDS: number;
-    onComplete: () => void;
+    rightAnswer?: string;
+    expiryTimestamp: Date;
+    revealed: boolean;
+    onSelect: (choice: string | null) => void;
 }
 
 export function MultipleChoice({
                                    question,
                                    possibleAnswers,
                                    rightAnswer,
-                                   CHOICE_TIME_LIMIT_SECONDS,
-                                   onComplete
+                                   expiryTimestamp,
+                                   revealed,
+                                   onSelect
                                }: MultipleChoiceProps) {
     const [selected, setSelected] = useState<string | null>(null);
     const [timedOut, setTimedOut] = useState<boolean>(false);
-    const [locked, setLocked] = useState<boolean>(false);
 
-    const [expiryTimestamp] = useState(() => {
-        const time = new Date();
-        time.setMilliseconds(
-            time.getMilliseconds() + CHOICE_TIME_LIMIT_SECONDS * 1000
-        );
-        return time;
-    });
+    const locked = selected !== null || timedOut;
+
+
 
     const {totalMilliseconds, isRunning, pause} = useTimer({
         expiryTimestamp, autoStart: true, interval: 20, onExpire: () => {
             setTimedOut(true);
-            setLocked(true);
-            onComplete();
+            onSelect(null);
         },
     });
 
@@ -45,9 +41,8 @@ export function MultipleChoice({
             return;
         }
         setSelected(choice);
-        setLocked(true);
         pause();
-        onComplete();
+        onSelect(choice);
     };
 
     return (
@@ -80,7 +75,7 @@ export function MultipleChoice({
                     )
                 })}
             </div>
-            {locked && (
+            {revealed && (
                 <p className="rightAnswer-txt">
                     {timedOut ? `The correct answer was: "${rightAnswer}".` : selected === rightAnswer ? "Correct!" : `The answer was "${rightAnswer}".`}
                 </p>

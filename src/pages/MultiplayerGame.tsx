@@ -1,0 +1,129 @@
+import {useState, useEffect} from "react";
+import { useParams, useLocation } from "react-router-dom";
+import { useSocket } from "../context/SocketContext.tsx";
+import Typing from "../components/quizes/Typing.tsx";
+import { MultipleChoice } from "../components/quizes/MultipleChoice.tsx";
+
+
+interface PublicRound {
+    type: "keyword" | "multipleChoice";
+    timeLimit: number;
+    startTime: number;
+    word?: string;
+    question?: string;
+    choices?: string[];
+}
+
+interface PlayerResult {
+    socketId: string;
+    name: string;
+    score: number;
+    correct: boolean | null;
+}
+
+type Phase = "playing" | "reveal";
+
+export default function MultiplayerGame() {
+    const {code} = useParams<{ code: string }>();
+    const location = useLocation();
+    const {socket} = useSocket();
+
+    const initialRound = (location.state as { initialRound?: { roundIndex: number; round: PublicRound } })?.initialRound;
+
+    const [round, setRound] = useState<PublicRound | null>(initialRound?.round ?? null);
+    const [roundIndex, setRoundIndex] = useState(initialRound?.roundIndex ?? 0);
+    const [phase, setPhase] = useState<Phase>("playing");
+
+    const [revealFact, setRevealFact] = useState<string | undefined>(undefined);
+    const [revealAnswer, setRevealAnswer] = useState<string | undefined>(undefined);
+    const [players, setPlayers] = useState<PlayerResult[]>([]);
+
+    useEffect(() => {
+        if (!socket) return;
+
+        const handleRoundStarted = (data: { roundIndex: number; round: PublicRound }) => {
+            setRoundIndex(data.roundIndex);
+            setRound(data.round);
+            setPhase("playing");
+            setRevealFact(undefined);
+            setRevealAnswer(undefined);
+        };
+
+        const handleRoundEnded = (data: {
+            word?: string;
+            fact?: string;
+            rightAnswer?: string;
+            players: PlayerResult[]
+        }) => {
+            setPhase("reveal");
+            setRevealFact(data.fact);
+            setRevealAnswer(data.rightAnswer);
+            setPlayers(data.players);
+        };
+
+        socket.on("roundStarted", handleRoundStarted);
+        socket.on("roundEnded", handleRoundEnded);
+
+        return () => {
+            socket.off("roundStarted", handleRoundStarted);
+            socket.off("roundEnded", handleRoundEnded);
+        };
+    }, [socket]);
+
+    const handleTypingComplete = (_correct: boolean, value: string) => {
+        if (!socket || !code) return;
+        socket.emit("submitAnswer", { code, answer: value }, () => {});
+    };
+
+
+    const handleMultipleChoiceSelect = (choice: string | null) => {
+        if (!socket || !code) return;
+        socket.emit("submitAnswer", { code, answer: choice }, () => {});
+    };
+
+    if (!round) {
+        return <p>Waiting for the next round...</p>;
+    }
+
+    const expiryTimestamp = new Date(round.startTime + round.timeLimit * 1000);
+
+    return (
+        <>
+            <p>Round {roundIndex}</p>
+
+            {phase === "playing" && round.type === "keyword" && round.word ? (
+                <Typing
+                    key={roundIndex}
+                    word={round.word}
+                    fact=""
+                    expiryTimestamp={expiryTimestamp}
+                    onComplete={handleTypingComplete}
+                />
+            ) : phase === "playing" && round.type === "multipleChoice" && round.question && round.choices ? (
+                <MultipleChoice
+                    key={roundIndex}
+                    question={round.question}
+                    possibleAnswers={round.choices}
+                    expiryTimestamp={expiryTimestamp}
+                    revealed={false}
+                    onSelect={handleMultipleChoiceSelect}
+                />
+            ) : null}
+
+            {phase === "reveal" && (
+                <div>
+                    {revealFact && <p className="fact-txt">{revealFact}</p>}
+                    {revealAnswer && <p>The correct answer was "{revealAnswer}".</p>}
+                    <h3>Scores</h3>
+                    <ul>
+                        {players.map((p) => (
+                            <li key={p.socketId}>
+                                {p.name}: {p.score} {p.correct === true ? "✓" : p.correct === false ? "✗" : ""}
+                            </li>
+                        ))}
+                    </ul>
+                </div>
+            )}
+        </>
+    );
+}

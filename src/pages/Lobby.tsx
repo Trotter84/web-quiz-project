@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useParams, useLocation } from "react-router-dom";
+import { useParams, useLocation, useNavigate } from "react-router-dom";
 import { useSocket } from "../context/SocketContext.tsx";
 
 interface Player {
@@ -7,6 +7,15 @@ interface Player {
     name: string;
     score: number;
     answered: boolean;
+}
+
+interface PublicRound {
+    type: "keyword" | "multipleChoice";
+    timeLimit: number;
+    startTime: number;
+    word?: string;
+    question?: string;
+    choices?: string[];
 }
 
 interface RoomState {
@@ -20,11 +29,13 @@ export default function Lobby()
 {
     const { code } = useParams<{ code: string }>();
     const location = useLocation();
+    const navigate = useNavigate();
     const { socket } = useSocket();
 
     const [room, setRoom] = useState<RoomState | null>(
         (location.state as { room?: RoomState })?.room ?? null
     );
+    const [error, setError] = useState("");
     const isHost = (location.state as { isHost?: boolean })?.isHost ?? false;
 
     useEffect(() =>
@@ -34,14 +45,32 @@ export default function Lobby()
         const handlePlayerJoined = (updatedRoom: RoomState)=> setRoom(updatedRoom);
         const handlePlayerLeft = (updatedRoom: RoomState)=> setRoom(updatedRoom);
 
+        const handleRoundStarted = (data: { roundIndex: number; round: PublicRound}) =>
+        {
+            navigate(`/multiplayer/game/${code}`, {state: { initialRound: data}});
+        }
+
+        const handleGameError = (data: { error: string}) => setError(data.error);
+
         socket.on("playerJoined", handlePlayerJoined);
         socket.on("playerLeft", handlePlayerLeft);
-
+        socket.on("roundStarted", handleRoundStarted);
+        socket.on("gameError", handleGameError);
         return () => {
             socket.off("playerJoined", handlePlayerJoined);
             socket.off("playerLeft", handlePlayerLeft);
+            socket.off("roundStarted", handleRoundStarted);
+            socket.off("gameError", handleGameError);
         }
-    }, [socket])
+    }, [socket, code, navigate])
+
+    const handleStartGame = () => {
+        if (!socket || !code) return;
+        setError("");
+        socket.emit("startGame", { code }, (res: any) => {
+            if (!res.success) setError(res.error);
+        });
+    };
 
     if (!room)
         return <h1>No room found</h1>;
@@ -59,7 +88,8 @@ export default function Lobby()
                 ))}
             </ul>
 
-            {isHost && <button disabled>Start Game</button>}
+            {isHost && <button onClick={handleStartGame}>Start Game</button>}
+            {error && <p style={{ color: "red" }}>{error}</p>}
         </>
     );
 }

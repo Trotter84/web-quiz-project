@@ -8,28 +8,22 @@ import "../../styles/typing.css";
 interface TypingProps {
     word: string;
     fact: string;
-    TYPING_TIME_LIMIT_SECONDS: number;
-    onComplete: () => void;
+    expiryTimestamp: Date;
+    onComplete: (correct: boolean, value: string) => void;
 }
 
-export default function Typing({word, fact, TYPING_TIME_LIMIT_SECONDS, onComplete}: TypingProps) {
+export default function Typing({word, fact, expiryTimestamp, onComplete}: TypingProps) {
     const [input, setInput] = useState<string>("");
     const [revealed, setRevealed] = useState<boolean>(false);
     const isCorrect: boolean = input.trim().toLowerCase() === word.toLowerCase();
 
-    const [expiryTimestamp] = useState(() => {
-        const time = new Date();
-        time.setMilliseconds(
-            time.getMilliseconds() + TYPING_TIME_LIMIT_SECONDS * 1000
-        );
-        return time;
-    });
+
 
     const {totalMilliseconds, isRunning, pause} = useTimer({
         expiryTimestamp, autoStart: true, interval: 20, onExpire: () => {
             if (!revealed) {
                 setRevealed(true);
-                onComplete();
+                onComplete(false, input);
             }
         },
     });
@@ -39,7 +33,7 @@ export default function Typing({word, fact, TYPING_TIME_LIMIT_SECONDS, onComplet
             // eslint-disable-next-line react-hooks/set-state-in-effect
             setRevealed(true);
             pause();
-            onComplete();
+            onComplete(true ,input);
         }
     }, [isCorrect, revealed, pause, onComplete]);
 

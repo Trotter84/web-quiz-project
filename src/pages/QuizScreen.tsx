@@ -6,6 +6,7 @@ import Typing from "../components/quizes/Typing.tsx";
 import {MultipleChoice} from "../components/quizes/MultipleChoice.tsx";
 import {useTimer} from "react-timer-hook";
 import SecondsCountdown from "../components/secondsCountdown.tsx";
+import John_Skipped from "../components/john_skip.tsx";
 
 
 interface Word {

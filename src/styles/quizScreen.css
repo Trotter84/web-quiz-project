@@ -1,3 +1,20 @@
-.fact-txt {
-    font-size: 1.3rem;
+.round-txt {
+    color: var(--accent2);
+}
+
+.answer:disabled {
+    pointer-events: none;
+    cursor: default;
+    opacity: 0.7;
+}
+
+.nxt-round-container {
+    display: flex;
+    flex-direction: row;
+    margin: 1rem auto;
+    align-items: baseline;
+}
+
+.nxt-round-container > p {
+    color: var(--text-h);
 }

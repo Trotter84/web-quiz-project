@@ -7,7 +7,7 @@ export type RoundType = 'keyword' | 'multipleChoice';
 const KEYWORD_TYPING_WEIGHT = 0.6;
 const TYPING_TIME_LIMIT_SECONDS = 5;
 const CHOICE_TIME_LIMIT_SECONDS = 7;
-
+export const MAX_ROUNDS = 20;
 
 
 export interface RoundData {

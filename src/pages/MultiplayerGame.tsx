@@ -1,5 +1,5 @@
 import {useState, useEffect} from "react";
-import { useParams, useLocation } from "react-router-dom";
+import { useParams, useLocation, useNavigate } from "react-router-dom";
 import { useSocket } from "../context/SocketContext.tsx";
 import Typing from "../components/quizes/Typing.tsx";
 import { MultipleChoice } from "../components/quizes/MultipleChoice.tsx";
@@ -21,12 +21,19 @@ interface PlayerResult {
     correct: boolean | null;
 }
 
+interface FinalPlayer {
+    socketId: string;
+    name: string;
+    score: number;
+}
+
 type Phase = "playing" | "reveal";
 
 export default function MultiplayerGame() {
     const {code} = useParams<{ code: string }>();
     const location = useLocation();
     const {socket} = useSocket();
+    const navigate = useNavigate();
 
     const initialRound = (location.state as { initialRound?: { roundIndex: number; round: PublicRound } })?.initialRound;
 
@@ -61,14 +68,20 @@ export default function MultiplayerGame() {
             setPlayers(data.players);
         };
 
+        const handleGameEnded = (data: { players: FinalPlayer[]}) =>
+        {
+            navigate(`/multiplayer/game-end/${code}`, {state: { players: data.players}});
+        }
+
         socket.on("roundStarted", handleRoundStarted);
         socket.on("roundEnded", handleRoundEnded);
-
+        socket.on("gameEnded", handleGameEnded);
         return () => {
             socket.off("roundStarted", handleRoundStarted);
             socket.off("roundEnded", handleRoundEnded);
+            socket.off("gameEnded", handleGameEnded);
         };
-    }, [socket]);
+    }, [socket, code, navigate]);
 
     const handleTypingComplete = (_correct: boolean, value: string) => {
         if (!socket || !code) return;

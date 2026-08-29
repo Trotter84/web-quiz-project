@@ -1,8 +1,10 @@
 import {useState, useEffect} from "react";
-import { useParams, useLocation } from "react-router-dom";
-import { useSocket } from "../context/SocketContext.tsx";
+import {useParams, useLocation} from "react-router-dom";
+import {useSocket} from "../context/SocketContext.tsx";
 import Typing from "../components/quizes/Typing.tsx";
-import { MultipleChoice } from "../components/quizes/MultipleChoice.tsx";
+import {MultipleChoice} from "../components/quizes/MultipleChoice.tsx";
+import "../styles/quizScreen.css";
+import "../styles/multiplayerGame.css";
 
 
 interface PublicRound {
@@ -28,7 +30,9 @@ export default function MultiplayerGame() {
     const location = useLocation();
     const {socket} = useSocket();
 
-    const initialRound = (location.state as { initialRound?: { roundIndex: number; round: PublicRound } })?.initialRound;
+    const initialRound = (location.state as {
+        initialRound?: { roundIndex: number; round: PublicRound }
+    })?.initialRound;
 
     const [round, setRound] = useState<PublicRound | null>(initialRound?.round ?? null);
     const [roundIndex, setRoundIndex] = useState(initialRound?.roundIndex ?? 0);
@@ -72,24 +76,26 @@ export default function MultiplayerGame() {
 
     const handleTypingComplete = (_correct: boolean, value: string) => {
         if (!socket || !code) return;
-        socket.emit("submitAnswer", { code, answer: value }, () => {});
+        socket.emit("submitAnswer", {code, answer: value}, () => {
+        });
     };
 
 
     const handleMultipleChoiceSelect = (choice: string | null) => {
         if (!socket || !code) return;
-        socket.emit("submitAnswer", { code, answer: choice }, () => {});
+        socket.emit("submitAnswer", {code, answer: choice}, () => {
+        });
     };
 
     if (!round) {
-        return <p>Waiting for the next round...</p>;
+        return <div className="mp-game-page"><p className="mp-waiting-txt">Waiting for the next round...</p></div>;
     }
 
     const expiryTimestamp = new Date(round.startTime + round.timeLimit * 1000);
 
     return (
-        <>
-            <p>Round {roundIndex}</p>
+        <div className="mp-game-page">
+            <p className="round-txt">Round {roundIndex}</p>
 
             {phase === "playing" && round.type === "keyword" && round.word ? (
                 <Typing
@@ -111,19 +117,27 @@ export default function MultiplayerGame() {
             ) : null}
 
             {phase === "reveal" && (
-                <div>
+                <div className="reveal-container">
                     {revealFact && <p className="fact-txt">{revealFact}</p>}
-                    {revealAnswer && <p>The correct answer was "{revealAnswer}".</p>}
-                    <h3>Scores</h3>
-                    <ul>
+                    {revealAnswer && <p className="rightAnswer-txt">The correct answer was "{revealAnswer}".</p>}
+                    <h3 className="scoreboard-title">Scores</h3>
+                    <ul className="scoreboard-list">
                         {players.map((p) => (
-                            <li key={p.socketId}>
-                                {p.name}: {p.score} {p.correct === true ? "✓" : p.correct === false ? "✗" : ""}
+                            <li
+                                key={p.socketId}
+                                className={`scoreboard-item ${p.correct === true ? "correct" : p.correct === false ? "incorrect" : ""}`}
+                            >
+                                <span className="scoreboard-name">{p.name}</span>
+                                <span className="scoreboard-score">
+                                    {p.score}
+                                    {p.correct === true && <span className="scoreboard-mark correct"> ✓</span>}
+                                    {p.correct === false && <span className="scoreboard-mark incorrect"> ✗</span>}
+                                </span>
                             </li>
                         ))}
                     </ul>
                 </div>
             )}
-        </>
+        </div>
     );
 }

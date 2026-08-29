@@ -1,0 +1,133 @@
+/* multiplayer.css */
+
+.multiplayer-page {
+    font-family: Arial, Helvetica, sans-serif;
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 30px 20px;
+    box-sizing: border-box;
+}
+
+.multiplayer-page h1 {
+    color: var(--text-h);
+    font-family: "Century Gothic", "Futura", "Trebuchet MS", sans-serif;
+    font-size: 56px;
+    font-weight: 800;
+    text-align: center;
+    margin: 40px;
+}
+
+.mode-toggle {
+    display: flex;
+    width: 100%;
+    border-radius: 6px;
+    overflow: hidden;
+    border: 1px solid var(--border);
+}
+
+.mode-toggle-button {
+    box-sizing: border-box;
+    flex: 1;
+    padding: 12px 0;
+    background-color: var(--code-bg);
+    color: var(--text);
+    font-size: 16px;
+    font-weight: 600;
+    border: none;
+    cursor: pointer;
+    transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.mode-toggle-button:hover:not(:disabled) {
+    background-color: var(--social-bg);
+    color: var(--text-h);
+}
+
+.mode-toggle-button:disabled {
+    background-color: var(--border);
+    color: var(--text-h);
+    cursor: default;
+}
+
+.multiplayer-section {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-top: 20px;
+}
+
+.multiplayer-label {
+    text-align: center;
+    color: var(--accent2);
+    font-size: 18px;
+    margin-bottom: 12px;
+    width: 100%;
+}
+
+.multiplayer-input,
+.multiplayer-select {
+    box-sizing: border-box;
+    width: 100%;
+    padding: 12px 16px;
+    background-color: var(--code-bg);
+    border: 2px solid var(--text-h);
+    border-radius: 6px;
+    color: var(--text-h);
+    font-size: 16px;
+    outline: none;
+    margin-bottom: 20px;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.multiplayer-select {
+    cursor: pointer;
+}
+
+.multiplayer-select option {
+    background-color: var(--code-bg);
+    color: var(--text-h);
+}
+
+.multiplayer-input:focus,
+.multiplayer-select:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px var(--accent-bg);
+}
+
+.multiplayer-button {
+    box-sizing: border-box;
+    width: 100%;
+    padding: 14px 0;
+    background: linear-gradient(180deg, var(--black), #01110A);
+    color: var(--text-h);
+    font-size: 17px;
+    font-weight: 600;
+    letter-spacing: 0.3px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    box-shadow: var(--shadow);
+    transition: background 0.2s ease, transform 0.1s ease, box-shadow 0.2s ease;
+}
+
+.multiplayer-button:hover:not(:disabled) {
+    background: linear-gradient(180deg, var(--accent2), #01110A);
+    box-shadow: 0 3px 6px rgba(0, 0, 0, 0.35);
+}
+
+.multiplayer-button:active:not(:disabled) {
+    transform: translateY(1px);
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+.multiplayer-button:disabled {
+    background: var(--border);
+    color: var(--text);
+    cursor: default;
+}
+
+.multiplayer-error {
+    color: var(--red);
+    text-align: center;
+    margin-top: 16px;
+}

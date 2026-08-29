@@ -151,6 +151,6 @@ export default function MultiplayerGame() {
                     </ul>
                 </div>
             )}
-        </>
+        </div>
     );
 }

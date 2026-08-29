@@ -19,9 +19,13 @@
     "react": "^19.2.8",
     "react-dom": "^19.2.8",
     "react-router-dom": "^7.18.2",
+<<<<<<< Updated upstream
     "react-timer-hook": "^4.0.6",
     "socket.io": "^4.8.3",
     "socket.io-client": "^4.8.3"
+=======
+    "react-timer-hook": "^4.0.6"
+>>>>>>> Stashed changes
   },
   "devDependencies": {
     "@babel/core": "^7.29.7",

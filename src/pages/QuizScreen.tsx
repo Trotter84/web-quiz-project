@@ -2,10 +2,19 @@ import {useCallback, useEffect, useState} from "react";
 import {useParams} from "react-router-dom";
 
 import "../styles/quizScreen.css";
-import Typing from "../components/quizes/Typing.tsx";
-import {MultipleChoice} from "../components/quizes/MultipleChoice.tsx";
+import QuizRoundView, {type ActiveRound} from "../components/QuizRoundView.tsx";
 import {useTimer} from "react-timer-hook";
 import SecondsCountdown from "../components/secondsCountdown.tsx";
+import {
+    type RoundType,
+    MULTIPLE_CHOICE_TIME_LIMIT_SECONDS,
+    SECONDS_BEFORE_CONTINUING,
+    getTypingTimeLimitSeconds,
+    pickRandom,
+    pickRoundType,
+    calculateScore,
+    nextMultiplier
+} from "../../quizConfig.ts";
 
 
 interface Word {
@@ -24,27 +33,7 @@ interface Question {
 }
 
 
-const KEYWORD_TYPING_WEIGHT = 0.6; // 0.0-1.0 increase the rate of typing vs multiple choice
-
-const TYPING_TIME_LIMIT_SECONDS = 5;
-// const TIME_PER_CHAR = 500;
-
-const CHOICE_TIME_LIMIT_SECONDS = 10;
-const SECONDS_BEFORE_CONTINUING = 3;
-
-type RoundType = "keyword" | "multipleChoice";
 type Phase = "playing" | "reveal";
-
-function pickRandom<T>(items: T[]): T | null {
-    if (items.length === 0) {
-        return null;
-    }
-    return items[Math.floor(Math.random() * items.length)];
-}
-
-function pickRoundType(): RoundType {
-    return Math.random() < KEYWORD_TYPING_WEIGHT ? "keyword" : "multipleChoice";
-}
 
 function getExpiryTimestamp(seconds: number): Date {
     const time = new Date();
@@ -67,8 +56,10 @@ export default function QuizContainer() {
     const [roundCount, setRoundCount] = useState<number>(1);
     const [loading, setLoading] = useState(true);
 
-    const [roundExpiry, setRoundExpiry] = useState<Date>(() => getExpiryTimestamp(CHOICE_TIME_LIMIT_SECONDS));
+    const [roundExpiry, setRoundExpiry] = useState<Date>(() => getExpiryTimestamp(MULTIPLE_CHOICE_TIME_LIMIT_SECONDS));
+    // eslint-disable-next-line react-hooks/purity
     const [roundStartTime, setRoundStartTime] = useState<number>(Date.now());
+    const [roundTimeLimit, setRoundTimeLimit] = useState<number>(MULTIPLE_CHOICE_TIME_LIMIT_SECONDS);
 
     const [mcRevealed, setMcRevealed] = useState(false);
 
@@ -126,13 +117,16 @@ export default function QuizContainer() {
             return;
         }
         if (roundType === "keyword" && words.length > 0) {
+            const word = pickRandom(words);
             // eslint-disable-next-line react-hooks/set-state-in-effect
-            setActiveWord(pickRandom(words));
-            setRoundExpiry(getExpiryTimestamp(TYPING_TIME_LIMIT_SECONDS))
+            setActiveWord(word);
+            const timeLimit = getTypingTimeLimitSeconds(word?.word ?? "");
+            setRoundExpiry(getExpiryTimestamp(timeLimit));
+            setRoundTimeLimit(timeLimit);
             setRoundStartTime(Date.now());
         } else if (roundType === "multipleChoice" && questions.length > 0) {
             setActiveQuestion(pickRandom(questions));
-            setRoundExpiry(getExpiryTimestamp(CHOICE_TIME_LIMIT_SECONDS));
+            setRoundExpiry(getExpiryTimestamp(MULTIPLE_CHOICE_TIME_LIMIT_SECONDS));
             setRoundStartTime(Date.now());
             setMcRevealed(false);
         }
@@ -162,20 +156,17 @@ export default function QuizContainer() {
 
     const handleRoundComplete = useCallback((correct: boolean) => {
         const elapsedMs = Date.now() - roundStartTime;
-        const limitSeconds = roundType === "keyword" ? TYPING_TIME_LIMIT_SECONDS : CHOICE_TIME_LIMIT_SECONDS
-        const limitMS = limitSeconds * 1000;
 
         if (correct) {
-            const timeRatio = Math.max(0, 1 - elapsedMs / limitMS); // 1 = instant, 0 = used all time
-            const roundScore = Math.round(100 * timeRatio * multiplier);
+            const roundScore = calculateScore(elapsedMs, roundTimeLimit, multiplier);
             setScore((prev) => prev + roundScore);
-            setMultiplier((prev) => Math.min(prev + 0.5, 3)); // cap at 3x
+            setMultiplier((prev) => nextMultiplier(prev));
         } else {
             setMultiplier(1);
         }
         setPhase("reveal");
         restart(getExpiryTimestamp(SECONDS_BEFORE_CONTINUING));
-    }, [restart, roundStartTime, roundType, multiplier]);
+    }, [restart, roundStartTime, roundTimeLimit, multiplier]);
 
     const handleMultipleChoiceSelect = useCallback((choice: string | null) => {
         setMcRevealed(true);
@@ -190,52 +181,45 @@ export default function QuizContainer() {
 
     const displayCategory = category ? category.charAt(0).toUpperCase() + category.slice(1) : "";
 
+    const activeRound: ActiveRound = roundType === "keyword" && activeWord ? {
+        type: "keyword",
+        key: activeWord._id,
+        word: activeWord.word,
+        fact: activeWord.fact,
+        onComplete: handleRoundComplete
+    } : roundType === "multipleChoice" && activeQuestion ? {
+        type: "multipleChoice",
+        key: activeQuestion._id,
+        question: activeQuestion.question,
+        possibleAnswers: activeQuestion.possible_answers,
+        rightAnswer: mcRevealed ? activeQuestion.right_answer : undefined,
+        revealed: mcRevealed,
+        onSelect: handleMultipleChoiceSelect
+    } : null;
+
     return (
-        <>
-            {loading ? (
-                <p>Loading quiz...</p>
-            ) : noQuizContent ? (
-                <p>No quiz content is available.</p>
-            ) : (
+        <QuizRoundView
+            loading={loading}
+            noContent={noQuizContent}
+            title={`${displayCategory} Quiz`}
+            activeRound={activeRound}
+            expiryTimestamp={roundExpiry}
+            phase={phase}
+            footer={
                 <>
-                    <h2>{displayCategory} Quiz</h2>
-                    {roundType === "keyword" && activeWord ? (
-                        <Typing
-                            key={activeWord._id}
-                            word={activeWord.word}
-                            fact={activeWord.fact}
-                            expiryTimestamp={roundExpiry}
-                            onComplete={handleRoundComplete}
-                        />
-                    ) : roundType === "multipleChoice" && activeQuestion ? (
-                        <MultipleChoice
-                            key={activeQuestion._id}
-                            question={activeQuestion.question}
-                            possibleAnswers={activeQuestion.possible_answers}
-                            rightAnswer={mcRevealed ? activeQuestion.right_answer : undefined}
-                            expiryTimestamp={roundExpiry}
-                            revealed={mcRevealed}
-                            onSelect={handleMultipleChoiceSelect}
-                        />
-                    ) : null}
-
                     <p className="score-txt">Score: {score} ({multiplier}x)</p>
-
                     <p className="round-txt">Round: {roundCount}</p>
-
-                    {phase === "reveal" ? (
-                        <div className="nxt-round-container">
-                            <p>Next round starting in&nbsp;&nbsp;</p>
-                            <SecondsCountdown
-                                totalMilliseconds={totalMilliseconds}
-                                isRunning={isRunning}
-                            />
-                        </div>
-                    ) : (
-                        ""
-                    )}
                 </>
-            )}
-        </>
+            }
+            revealExtra={
+                <div className="nxt-round-container">
+                    <p>Next round starting in&nbsp;&nbsp;</p>
+                    <SecondsCountdown
+                        totalMilliseconds={totalMilliseconds}
+                        isRunning={isRunning}
+                    />
+                </div>
+            }
+        />
     );
 }

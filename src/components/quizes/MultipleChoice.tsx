@@ -23,14 +23,14 @@ function shuffle<T>(items: T[]): T[] {
     return result;
 }
 
-export function MultipleChoice({
-                                   question,
-                                   possibleAnswers,
-                                   rightAnswer,
-                                   expiryTimestamp,
-                                   revealed,
-                                   onSelect
-                               }: MultipleChoiceProps) {
+export default function MultipleChoice({
+                                           question,
+                                           possibleAnswers,
+                                           rightAnswer,
+                                           expiryTimestamp,
+                                           revealed,
+                                           onSelect
+                                       }: MultipleChoiceProps) {
     const [selected, setSelected] = useState<string | null>(null);
     const [timedOut, setTimedOut] = useState<boolean>(false);
     const locked = selected !== null || timedOut;

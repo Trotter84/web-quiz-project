@@ -1,53 +1,50 @@
-import { createContext, useContext, useEffect, useRef, useState, type ReactNode } from "react";
-import { io, Socket } from "socket.io-client";
+import {createContext, useContext, useEffect, useState, type ReactNode} from "react";
+import {io, Socket} from "socket.io-client";
 
 const SOCKET_URL = import.meta.env.VITE_SOCKET_URL || "http://localhost:3000";
 
-interface SocketContextValue
-{
+interface SocketContextValue {
     socket: Socket | null;
     connected: boolean;
 }
 
 const SocketContext = createContext<SocketContextValue>({socket: null, connected: false});
 
-export function SocketProvider({ children }: { children: ReactNode })
-{
-    const socketRef = useRef<Socket | null>(null);
+export function SocketProvider({children}: { children: ReactNode }) {
+    const [socket, setSocket] = useState<Socket | null>(null);
     const [connected, setConnected] = useState(false);
 
-    useEffect(() =>
-    {
-       const socket = io(SOCKET_URL);
-       socketRef.current = socket;
+    useEffect(() => {
+        const newSocket = io(SOCKET_URL);
+        // eslint-disable-next-line react-hooks/set-state-in-effect
+        setSocket(newSocket);
 
-       socket.on("connect", () =>
-       {
-           console.log("Connected. Socket ID: " + socket.id);
-           setConnected(true);
+        newSocket.on("connect", () => {
+            console.log("Connected. Socket ID: " + newSocket.id);
+            setConnected(true);
 
-       });
+        });
 
-       socket.on("disconnect", () =>
-       {
-          console.log("Disconnected from server");
-          setConnected(false);
-       });
+        newSocket.on("disconnect", () => {
+            console.log("Disconnected from server");
+            setConnected(false);
+        });
 
-       return () => {
-           socket.disconnect();
-       };
+        return () => {
+            newSocket.disconnect();
+        };
 
     }, []);
 
     return (
-      <SocketContext.Provider value={{ socket: socketRef.current, connected}}>
-          {children}
-      </SocketContext.Provider>
+        <SocketContext.Provider value={{socket, connected}}>
+            {children}
+        </SocketContext.Provider>
     );
 
 }
-export function useSocket()
-{
+
+// eslint-disable-next-line react-refresh/only-export-components
+export function useSocket() {
     return useContext(SocketContext);
 }

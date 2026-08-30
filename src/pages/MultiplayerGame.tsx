@@ -1,8 +1,7 @@
 import {useState, useEffect} from "react";
 import {useParams, useLocation} from "react-router-dom";
 import {useSocket} from "../context/SocketContext.tsx";
-import Typing from "../components/quizes/Typing.tsx";
-import {MultipleChoice} from "../components/quizes/MultipleChoice.tsx";
+import QuizRoundView, {type ActiveRound} from "../components/QuizRoundView.tsx";
 
 
 interface PublicRound {
@@ -43,6 +42,7 @@ export default function MultiplayerGame() {
         if (!socket) return;
 
         const handleRoundStarted = (data: { roundIndex: number; round: PublicRound }) => {
+            console.log("[client] roundStarted received:", data); // debugging
             setRoundIndex(data.roundIndex);
             setRound(data.round);
             setPhase("playing");
@@ -56,6 +56,7 @@ export default function MultiplayerGame() {
             rightAnswer?: string;
             players: PlayerResult[]
         }) => {
+            console.log("[client] roundEnded received:", data); // debugging
             setPhase("reveal");
             setRevealFact(data.fact);
             setRevealAnswer(data.rightAnswer);
@@ -72,48 +73,51 @@ export default function MultiplayerGame() {
     }, [socket]);
 
     const handleTypingComplete = (_correct: boolean, value: string) => {
+        console.log("[client] handleTypingComplete fired, socket:", !!socket, "code:", code); // debugging
         if (!socket || !code) return;
-        socket.emit("submitAnswer", {code, answer: value}, () => {
+        socket.emit("submitAnswer", {code, answer: value}, (res: any) => {
+            console.log("[client] submitAnswer ack:", res); // debugging
         });
     };
 
 
     const handleMultipleChoiceSelect = (choice: string | null) => {
+        console.log("[client] handleMultipleChoiceSelect fired, socket:", !!socket, "code:", code); // debugging
         if (!socket || !code) return;
-        socket.emit("submitAnswer", {code, answer: choice}, () => {
+        socket.emit("submitAnswer", {code, answer: choice}, (res: any) => {
+            console.log("[client] submitAnswer ack:", res); // debugging
         });
     };
 
-    if (!round) {
-        return <p>Waiting for the next round...</p>;
-    }
+    const loading = round === null;
 
-    const expiryTimestamp = new Date(round.startTime + round.timeLimit * 1000);
+    const expiryTimestamp = round ? new Date(round.startTime + round.timeLimit * 1000) : new Date();
+
+    const activeRound: ActiveRound =
+        phase === "playing" && round?.type === "keyword" && round.word
+            ? {type: "keyword", key: String(roundIndex), word: round.word, fact: "", onComplete: handleTypingComplete}
+            : phase === "playing" && round?.type === "multipleChoice" && round.question && round.choices
+                ? {
+                    type: "multipleChoice",
+                    key: String(roundIndex),
+                    question: round.question,
+                    possibleAnswers: round.choices,
+                    revealed: false,
+                    onSelect: handleMultipleChoiceSelect,
+                }
+                : null;
 
     return (
-        <>
-            <p>Round {roundIndex}</p>
-
-            {phase === "playing" && round.type === "keyword" && round.word ? (
-                <Typing
-                    key={roundIndex}
-                    word={round.word}
-                    fact=""
-                    expiryTimestamp={expiryTimestamp}
-                    onComplete={handleTypingComplete}
-                />
-            ) : phase === "playing" && round.type === "multipleChoice" && round.question && round.choices ? (
-                <MultipleChoice
-                    key={roundIndex}
-                    question={round.question}
-                    possibleAnswers={round.choices}
-                    expiryTimestamp={expiryTimestamp}
-                    revealed={false}
-                    onSelect={handleMultipleChoiceSelect}
-                />
-            ) : null}
-
-            {phase === "reveal" && (
+        <QuizRoundView
+            loading={loading}
+            noContent={false}
+            loadingText="Waiting for the next round..."
+            title={`Round ${roundIndex}`}
+            activeRound={activeRound}
+            expiryTimestamp={expiryTimestamp}
+            phase={phase}
+            footer={null}
+            revealExtra={
                 <div>
                     {revealFact && <p className="fact-txt">{revealFact}</p>}
                     {revealAnswer && <p>The correct answer was "{revealAnswer}".</p>}
@@ -126,7 +130,8 @@ export default function MultiplayerGame() {
                         ))}
                     </ul>
                 </div>
-            )}
-        </>
+            }
+        />
     );
 }
+

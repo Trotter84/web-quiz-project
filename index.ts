@@ -2,12 +2,12 @@ import 'dotenv/config';
 import express from 'express';
 import cors from 'cors';
 import mongoose from 'mongoose';
-import { createServer } from 'http';
-import { Server } from 'socket.io';
+import {createServer} from 'http';
+import {Server} from 'socket.io';
 import {
     createRoom, joinRoom, getRoom, removePlayerFromRoom,
     fetchRoundForCategory, serializePublicRound, resetPlayersForNewRound,
-    checkAnswerCorrect, allPlayersAnswered, serializeRoom, Room,
+    checkAnswerCorrect, scoreAnswer, allPlayersAnswered, serializeRoom, Room,
 } from './src/sockets/rooms';
 
 import userRoutes from './src/routes/userRoutes';
@@ -53,13 +53,11 @@ const io = new Server(httpServer, {
 
 const ROUND_END_GRACE_MS = 1500;
 
-async function beginRound(io: Server, room: Room)
-{
+async function beginRound(io: Server, room: Room) {
     const round = await fetchRoundForCategory(room.category);
 
-    if (!round)
-    {
-        io.to(room.code).emit('gameError', { error: 'No more quiz content'});
+    if (!round) {
+        io.to(room.code).emit('gameError', {error: 'No more quiz content'});
         room.status = 'finished';
         return;
     }
@@ -78,10 +76,9 @@ async function beginRound(io: Server, room: Room)
         endRound(io, room);
     }, round.timeLimit * 1000 + ROUND_END_GRACE_MS);
 }
-function endRound(io: Server, room: Room)
-{
-    if (room.roundTimeoutHandle)
-    {
+
+function endRound(io: Server, room: Room) {
+    if (room.roundTimeoutHandle) {
         clearTimeout(room.roundTimeoutHandle);
         room.roundTimeoutHandle = null;
     }
@@ -89,14 +86,27 @@ function endRound(io: Server, room: Room)
 
     const round = room.currentRound;
 
+    for (const player of room.players.values()) {
+        if (!player.answered) {
+            player.correct = false;
+            player.multiplier = 1;
+        }
+    }
+
     io.to(room.code).emit('roundEnded', {
         word: round.type == 'keyword' ? round.word : undefined,
         fact: round.type == 'keyword' ? round.fact : undefined,
         rightAnswer: round.type === 'multipleChoice' ? round.rightAnswer : undefined,
         players: Array.from(room.players.values()).map((p) => ({
-            socketId: p.socketId, name: p.name, score: p.score, correct: p.correct,
+            socketId: p.socketId, name: p.name, score: p.score, multiplier: p.multiplier, correct: p.correct,
         })),
     });
+
+    console.log('[server] emitted roundEnded for room', room.code, 'players:', Array.from(room.players.values()).map(p => ({
+        name: p.name,
+        score: p.score,
+        multiplier: p.multiplier
+    }))); // debugging
 
     setTimeout(() => {
         beginRound(io, room);
@@ -106,85 +116,93 @@ function endRound(io: Server, room: Room)
 io.on('connection', (socket) => {
     console.log('Client connected. Socket ID: ' + socket.id);
 
-    socket.on('createRoom', ({ hostName, category}: { hostName: string; category: string }, callback: (res: any) => void) =>
-    {
+    socket.on('createRoom', ({hostName, category}: { hostName: string; category: string }, callback: (res: any) => void) => {
         const room = createRoom(socket.id, hostName, category);
 
         socket.join(room.code);
         socket.data.roomCode = room.code;
 
-        callback({ success: true, room: serializeRoom(room) });
+        callback({success: true, room: serializeRoom(room)});
     });
 
-    socket.on('joinRoom', ({ code, name }: { code: string; name: string }, callback: (res: any) => void) =>
-    {
+    socket.on('joinRoom', ({code, name}: { code: string; name: string }, callback: (res: any) => void) => {
         const room = joinRoom(code, socket.id, name);
 
-        if (!room)
-        {
-            callback({ success: false, error: 'Room not found or it has already started.' });
+        if (!room) {
+            callback({success: false, error: 'Room not found or it has already started.'});
             return;
         }
 
         socket.join(room.code);
         socket.data.roomCode = room.code;
 
-        callback({ success: true, room: serializeRoom(room) });
+        callback({success: true, room: serializeRoom(room)});
 
         socket.to(room.code).emit('playerJoined', serializeRoom(room));
     });
 
-    socket.on('startGame', async ({ code }: { code: string}, callback: (res: any) => void) =>{
+    socket.on('startGame', async ({code}: { code: string }, callback: (res: any) => void) => {
         const room = getRoom(code);
-        if (!room) { callback({ success: false, error: 'Room not found.' }); return;}
+        if (!room) {
+            callback({success: false, error: 'Room not found.'});
+            return;
+        }
 
-        if (room.hostSocketId !== socket.id) { callback({ success: false, error: 'Only host can start game.' }); return;}
+        if (room.hostSocketId !== socket.id) {
+            callback({success: false, error: 'Only host can start game.'});
+            return;
+        }
 
         room.status = 'inProgress';
-        callback({ success: true});
+        callback({success: true});
         await beginRound(io, room);
     });
 
-    socket.on('submitAnswer', ({ code, answer}: { code: string; answer: string | null}, callback: (res: any) => void) => {
+    socket.on('submitAnswer', ({code, answer}: { code: string; answer: string | null }, callback: (res: any) => void) => {
+        console.log('[server] submitAnswer received from', socket.id, 'code:', code, 'answer:', answer); // debugging
         const room = getRoom(code);
-        if (!room || !room.currentRound) { callback({ success: false, error: 'No active round.' }); return;}
+        if (!room || !room.currentRound) {
+            console.log('[server] submitAnswer rejected: no room/round'); // debugging
+            callback({success: false, error: 'No active round.'});
+            return;
+        }
 
         const player = room.players.get(socket.id);
-        if (!player || player.answered) { callback({ success: false, error: 'Already answer or not in room' }); return;}
+        if (!player || player.answered) {
+            callback({success: false, error: 'Already answer or not in room'});
+            return;
+        }
 
         player.answered = true;
         player.answer = answer;
         player.correct = answer !== null && checkAnswerCorrect(room.currentRound, answer);
-        //const timeTaken = Date.now() - room.currentRound.startTime; i need to have the score calc here later
+        scoreAnswer(room.currentRound, player, player.correct);
+        console.log('[server] player after scoring:', {name: player.name, correct: player.correct, score: player.score, multiplier: player.multiplier}); // debugging
 
-        callback({ success: true});
+        callback({success: true});
 
-        if (allPlayersAnswered(room))
-        {
+        if (allPlayersAnswered(room)) {
+            console.log('[server] all players answered, ending round'); // debugging
             endRound(io, room);
         }
 
     });
 
-    socket.on('disconnect', (reason) =>
-    {
-       console.log('Client disconnected. Socket ID: ' + socket.id + " Reason: "  + reason);
+    socket.on('disconnect', (reason) => {
+        console.log('Client disconnected. Socket ID: ' + socket.id + " Reason: " + reason);
 
-       const roomCode = socket.data.roomCode as string | undefined;
-       if (roomCode)
-       {
-           removePlayerFromRoom(roomCode, socket.id);
+        const roomCode = socket.data.roomCode as string | undefined;
+        if (roomCode) {
+            removePlayerFromRoom(roomCode, socket.id);
 
-           const room = getRoom(roomCode);
-           if (room)
-           {
-               io.to(room.code).emit('playerLeft', serializeRoom(room));
-               if (room.status === 'inProgress' && allPlayersAnswered(room))
-               {
-                   endRound(io, room);
-               }
-           }
-       }
+            const room = getRoom(roomCode);
+            if (room) {
+                io.to(room.code).emit('playerLeft', serializeRoom(room));
+                if (room.status === 'inProgress' && allPlayersAnswered(room)) {
+                    endRound(io, room);
+                }
+            }
+        }
     });
 });
 
@@ -193,4 +211,4 @@ httpServer.listen(PORT, () => {
     console.log(`Server started on port ${PORT}`);
 });
 
-export { io };
+export {io};

@@ -144,12 +144,11 @@ export default function MultiplayerGame() {
                     <h3 className="scoreboard-title">Scores</h3>
                     <ul className="scoreboard-list">
                         {players.map((p) => (
-                            <li key={p.socketId}>
-                                {p.name}: {p.score} ({p.multiplier}x) {p.correct === true ? "✓" : p.correct === false ? "✗" : ""}
-                                {/*<li*/}
-                                {/*    key={p.socketId}*/}
-                                {/*    className={`scoreboard-item ${p.correct === true ? "correct" : p.correct === false ? "incorrect" : ""}`}*/}
-                                {/*>*/}
+                            <li
+                                key={p.socketId}
+                                className={`scoreboard-item ${p.correct === true ? "correct" : p.correct === false ? "incorrect" : ""}`}
+                            >
+                                {/*{p.name}: {p.score} ({p.multiplier}x) {p.correct === true ? "✓" : p.correct === false ? "✗" : ""}*/}
                                 <span className="scoreboard-name">{p.name}</span>
                                 <span className="scoreboard-score">
                                     {p.score}

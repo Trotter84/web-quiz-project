@@ -4,7 +4,7 @@ export type RoundType = "keyword" | "multipleChoice";
 // (MultipleChoice) : 0.0 - 1.0 : (Typing)
 export const TYPING_CHANCE_WEIGHT = 0.6;
 
-export const MS_PER_CHAR = 300;
+export const MS_PER_CHAR = 400;
 export const MIN_TYPING_TIME_LIMIT_SECONDS = 3;
 
 export const MULTIPLE_CHOICE_TIME_LIMIT_SECONDS = 10;

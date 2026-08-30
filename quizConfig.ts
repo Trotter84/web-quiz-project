@@ -15,6 +15,8 @@ export const SECONDS_BEFORE_CONTINUING = 3;
 export const MAX_MULTIPLIER = 3;
 export const MULTIPLIER_STEP = 0.5;
 
+export const MAX_ROUNDS = 20;
+
 export function getTypingTimeLimitSeconds(word: string): number {
     const scaled = (word.length * MS_PER_CHAR) / 1000;
     return Math.max(MIN_TYPING_TIME_LIMIT_SECONDS, scaled);

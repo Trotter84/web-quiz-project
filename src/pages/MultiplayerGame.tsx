@@ -146,10 +146,10 @@ export default function MultiplayerGame() {
                         {players.map((p) => (
                             <li key={p.socketId}>
                                 {p.name}: {p.score} ({p.multiplier}x) {p.correct === true ? "✓" : p.correct === false ? "✗" : ""}
-                            <li
-                                key={p.socketId}
-                                className={`scoreboard-item ${p.correct === true ? "correct" : p.correct === false ? "incorrect" : ""}`}
-                            >
+                                {/*<li*/}
+                                {/*    key={p.socketId}*/}
+                                {/*    className={`scoreboard-item ${p.correct === true ? "correct" : p.correct === false ? "incorrect" : ""}`}*/}
+                                {/*>*/}
                                 <span className="scoreboard-name">{p.name}</span>
                                 <span className="scoreboard-score">
                                     {p.score}
@@ -162,8 +162,6 @@ export default function MultiplayerGame() {
                 </div>
             }
         />
-            )}
-        </div>
     );
 }
 

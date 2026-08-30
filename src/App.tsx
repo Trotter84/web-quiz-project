@@ -20,7 +20,7 @@ export default function App() {
         <UserProvider>
             <SocketProvider>
                 <Routes>
-                    {/*<Route path={'/'} element={<Login/>}/>*/}
+                    <Route path={'/'} element={<ModeSelection/>}/>
                     <Route path={'/home'} element={<Home/>}/>
                     <Route path={'/sign-up'} element={<SignUp/>}/>
                     <Route path={'/login'} element={<Login/>}/>
@@ -29,7 +29,6 @@ export default function App() {
                     <Route path={'/multiplayer/lobby/:code'} element={<Lobby/>}/>
                     <Route path={'/multiplayer/game/:code'} element={<MultiplayerGame/>}/>
                     <Route path={'/multiplayer/game-end/:code'} element={<GameEnd/>}/>
-                    <Route path={'/'} element={<ModeSelection/>}/>
                 </Routes>
             </SocketProvider>
         </UserProvider>

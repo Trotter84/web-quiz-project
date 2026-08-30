@@ -7,14 +7,15 @@ import {Server} from 'socket.io';
 import {
     createRoom, joinRoom, getRoom, removePlayerFromRoom,
     fetchRoundForCategory, serializePublicRound, resetPlayersForNewRound,
-    checkAnswerCorrect, scoreAnswer, allPlayersAnswered, serializeRoom, Room, MAX_ROUNDS,
+    checkAnswerCorrect, scoreAnswer, allPlayersAnswered, serializeRoom, Room,
 } from './src/sockets/rooms';
+import {MAX_ROUNDS} from "./quizConfig";
 
 import userRoutes from './src/routes/userRoutes';
 import questionRoutes from './src/routes/questionRoutes';
 import wordRoutes from './src/routes/wordRoutes';
-import {Socket} from "node:net";
-import {hostname} from "node:os";
+// import {Socket} from "node:net";
+// import {hostname} from "node:os";
 import {clearTimeout} from "node:timers";
 
 const app = express();
@@ -53,11 +54,9 @@ const io = new Server(httpServer, {
 
 const ROUND_END_GRACE_MS = 1500;
 
-async function beginRound(io: Server, room: Room)
-{
+async function beginRound(io: Server, room: Room) {
 
-    if (room.currentRoundIndex >= MAX_ROUNDS)
-    {
+    if (room.currentRoundIndex >= MAX_ROUNDS) {
         endGame(io, room);
         return;
     }
@@ -86,14 +85,13 @@ async function beginRound(io: Server, room: Room)
 
 }
 
-function endGame(io: Server, room: Room)
-{
+function endGame(io: Server, room: Room) {
     room.status = 'finished';
     room.currentRound = null;
 
-    const finalPlayers = Array.from(room.players.values()).map((p) => ({ socketId: p.socketId, name: p.name, score: p.score})).sort((a, b) => b.score - a.score);
+    const finalPlayers = Array.from(room.players.values()).map((p) => ({socketId: p.socketId, name: p.name, score: p.score})).sort((a, b) => b.score - a.score);
 
-    io.to(room.code).emit('gameEnded', { players: finalPlayers });
+    io.to(room.code).emit('gameEnded', {players: finalPlayers});
 }
 
 function endRound(io: Server, room: Room) {

@@ -9,7 +9,7 @@ export default function Multiplayer() {
     const navigate = useNavigate();
 
     const [categories, setCategories] = useState<string[]>([]);
-    const [mode, setMode] = useState<"create" | "join">("create");
+    const [mode, setMode] = useState<"create" | "join">("join");
 
     const [hostName, setHostName] = useState("");
     const [category, setCategory] = useState("");

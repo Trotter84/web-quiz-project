@@ -1,0 +1,89 @@
+/* multiplayerGame.css */
+
+.mp-game-page {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 20px;
+    box-sizing: border-box;
+    text-align: center;
+}
+
+.mp-waiting-txt {
+    color: var(--text);
+    font-size: 20px;
+    margin-top: 60px;
+}
+
+.reveal-container {
+    margin-top: 40px;
+}
+
+.rightAnswer-txt {
+    font-family: "Century Gothic", "URW Gothic", "Futura", sans-serif;
+    color: var(--text-h);
+    font-size: 1.1rem;
+    margin-bottom: 20px;
+}
+
+.scoreboard-title {
+    color: var(--text-h);
+    font-family: "Century Gothic", "Futura", "Trebuchet MS", sans-serif;
+    font-size: 28px;
+    margin-bottom: 12px;
+}
+
+.scoreboard-list {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    width: 100%;
+    max-width: 500px;
+    margin: 0 auto;
+    padding: 0;
+}
+
+.scoreboard-item {
+    box-sizing: border-box;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    padding: 12px 20px;
+    background-color: var(--code-bg);
+    border: 2px solid var(--border);
+    border-radius: 6px;
+    color: var(--text-h);
+    font-size: 16px;
+    transition: border-color 0.2s ease;
+}
+
+.scoreboard-item.correct {
+    border-color: var(--green);
+}
+
+.scoreboard-item.incorrect {
+    border-color: var(--red);
+}
+
+.scoreboard-name {
+    font-weight: 600;
+}
+
+.scoreboard-score {
+    color: var(--accent2);
+    font-weight: 600;
+}
+
+.scoreboard-mark {
+    margin-left: 10px;
+    font-weight: 700;
+}
+
+.scoreboard-mark.correct {
+    color: var(--green);
+}
+
+.scoreboard-mark.incorrect {
+    color: var(--red);
+}

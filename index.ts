@@ -7,7 +7,7 @@ import {Server} from 'socket.io';
 import {
     createRoom, joinRoom, getRoom, removePlayerFromRoom,
     fetchRoundForCategory, serializePublicRound, resetPlayersForNewRound,
-    checkAnswerCorrect, scoreAnswer, allPlayersAnswered, serializeRoom, Room,
+    checkAnswerCorrect, scoreAnswer, allPlayersAnswered, serializeRoom, Room, MAX_ROUNDS,
 } from './src/sockets/rooms';
 
 import userRoutes from './src/routes/userRoutes';
@@ -53,7 +53,15 @@ const io = new Server(httpServer, {
 
 const ROUND_END_GRACE_MS = 1500;
 
-async function beginRound(io: Server, room: Room) {
+async function beginRound(io: Server, room: Room)
+{
+
+    if (room.currentRoundIndex >= MAX_ROUNDS)
+    {
+        endGame(io, room);
+        return;
+    }
+
     const round = await fetchRoundForCategory(room.category);
 
     if (!round) {
@@ -75,6 +83,17 @@ async function beginRound(io: Server, room: Room) {
     room.roundTimeoutHandle = setTimeout(() => {
         endRound(io, room);
     }, round.timeLimit * 1000 + ROUND_END_GRACE_MS);
+
+}
+
+function endGame(io: Server, room: Room)
+{
+    room.status = 'finished';
+    room.currentRound = null;
+
+    const finalPlayers = Array.from(room.players.values()).map((p) => ({ socketId: p.socketId, name: p.name, score: p.score})).sort((a, b) => b.score - a.score);
+
+    io.to(room.code).emit('gameEnded', { players: finalPlayers });
 }
 
 function endRound(io: Server, room: Room) {

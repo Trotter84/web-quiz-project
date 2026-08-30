@@ -4,6 +4,7 @@ import {clearTimeout} from "node:timers";
 import {
     type RoundType,
     MULTIPLE_CHOICE_TIME_LIMIT_SECONDS,
+    MAX_ROUNDS,
     getTypingTimeLimitSeconds,
     pickRandom,
     pickRoundType,

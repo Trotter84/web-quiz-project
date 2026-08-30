@@ -1,7 +1,9 @@
 import {useState, useEffect} from "react";
-import {useParams, useLocation} from "react-router-dom";
+import {useParams, useLocation, useNavigate} from "react-router-dom";
 import {useSocket} from "../context/SocketContext.tsx";
 import QuizRoundView, {type ActiveRound} from "../components/QuizRoundView.tsx";
+import "../styles/quizScreen.css";
+import "../styles/multiplayerGame.css";
 
 
 interface PublicRound {
@@ -21,14 +23,23 @@ interface PlayerResult {
     correct: boolean | null;
 }
 
+interface FinalPlayer {
+    socketId: string;
+    name: string;
+    score: number;
+}
+
 type Phase = "playing" | "reveal";
 
 export default function MultiplayerGame() {
     const {code} = useParams<{ code: string }>();
     const location = useLocation();
     const {socket} = useSocket();
+    const navigate = useNavigate();
 
-    const initialRound = (location.state as { initialRound?: { roundIndex: number; round: PublicRound } })?.initialRound;
+    const initialRound = (location.state as {
+        initialRound?: { roundIndex: number; round: PublicRound }
+    })?.initialRound;
 
     const [round, setRound] = useState<PublicRound | null>(initialRound?.round ?? null);
     const [roundIndex, setRoundIndex] = useState(initialRound?.roundIndex ?? 0);
@@ -63,14 +74,19 @@ export default function MultiplayerGame() {
             setPlayers(data.players);
         };
 
+        const handleGameEnded = (data: { players: FinalPlayer[] }) => {
+            navigate(`/multiplayer/game-end/${code}`, {state: {players: data.players}});
+        }
+
         socket.on("roundStarted", handleRoundStarted);
         socket.on("roundEnded", handleRoundEnded);
-
+        socket.on("gameEnded", handleGameEnded);
         return () => {
             socket.off("roundStarted", handleRoundStarted);
             socket.off("roundEnded", handleRoundEnded);
+            socket.off("gameEnded", handleGameEnded);
         };
-    }, [socket]);
+    }, [socket, code, navigate]);
 
     const handleTypingComplete = (_correct: boolean, value: string) => {
         console.log("[client] handleTypingComplete fired, socket:", !!socket, "code:", code); // debugging
@@ -90,6 +106,10 @@ export default function MultiplayerGame() {
     };
 
     const loading = round === null;
+
+    // if (!round) {
+    //     return <div className="mp-game-page"><p className="mp-waiting-txt">Waiting for the next round...</p></div>;
+    // }
 
     const expiryTimestamp = round ? new Date(round.startTime + round.timeLimit * 1000) : new Date();
 
@@ -118,20 +138,32 @@ export default function MultiplayerGame() {
             phase={phase}
             footer={null}
             revealExtra={
-                <div>
+                <div className="reveal-container">
                     {revealFact && <p className="fact-txt">{revealFact}</p>}
-                    {revealAnswer && <p>The correct answer was "{revealAnswer}".</p>}
-                    <h3>Scores</h3>
-                    <ul>
+                    {revealAnswer && <p className="rightAnswer-txt">The correct answer was "{revealAnswer}".</p>}
+                    <h3 className="scoreboard-title">Scores</h3>
+                    <ul className="scoreboard-list">
                         {players.map((p) => (
                             <li key={p.socketId}>
                                 {p.name}: {p.score} ({p.multiplier}x) {p.correct === true ? "✓" : p.correct === false ? "✗" : ""}
+                            <li
+                                key={p.socketId}
+                                className={`scoreboard-item ${p.correct === true ? "correct" : p.correct === false ? "incorrect" : ""}`}
+                            >
+                                <span className="scoreboard-name">{p.name}</span>
+                                <span className="scoreboard-score">
+                                    {p.score}
+                                    {p.correct === true && <span className="scoreboard-mark correct"> ✓</span>}
+                                    {p.correct === false && <span className="scoreboard-mark incorrect"> ✗</span>}
+                                </span>
                             </li>
                         ))}
                     </ul>
                 </div>
             }
         />
+            )}
+        </div>
     );
 }
 

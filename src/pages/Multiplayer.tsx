@@ -1,6 +1,7 @@
 import {useState, useEffect} from "react";
 import {useNavigate} from "react-router-dom";
 import {useSocket} from "../context/SocketContext.tsx";
+import "../styles/multiplayer.css";
 
 
 export default function Multiplayer() {
@@ -57,36 +58,47 @@ export default function Multiplayer() {
     }
 
     return (
-        <>
+        <div className="multiplayer-page">
             <h1>Multiplayer Rooms</h1>
 
-            <button onClick={() => setMode("create")} disabled={mode === "create"}>Create Room</button>
-            <button onClick={() => setMode("join")} disabled={mode === "join"}>Join Room</button>
+            <div className="mode-toggle">
+                <button className="mode-toggle-button" onClick={() => setMode("create")}
+                        disabled={mode === "create"}>Create Room
+                </button>
+                <button className="mode-toggle-button" onClick={() => setMode("join")} disabled={mode === "join"}>Join
+                    Room
+                </button>
+            </div>
 
             {mode === "create" ? (
-                <>
+                <div className="multiplayer-section">
                     <h1>Create Room:</h1>
-                    <label>Type a Username:</label>
-                    <input type={"text"} value={hostName} onChange={(e) => setHostName(e.target.value)}/>
-                    <label>Category:</label>
-                    <select value={category} onChange={(e) => setCategory(e.target.value)}>
+                    <label className="multiplayer-label">Type a Username:</label>
+                    <input className="multiplayer-input" type={"text"} value={hostName}
+                           onChange={(e) => setHostName(e.target.value)}/>
+                    <label className="multiplayer-label">Category:</label>
+                    <select className="multiplayer-select" value={category}
+                            onChange={(e) => setCategory(e.target.value)}>
                         {categories.map((c) => (
                             <option key={c} value={c}>{c}</option>
                         ))}
                     </select>
-                    <button onClick={handleCreateRoom} disabled={!connected}>Create</button>
-                </>
+                    <button className="multiplayer-button" onClick={handleCreateRoom} disabled={!connected}>Create
+                    </button>
+                </div>
             ) : (
-                <>
-                    <label>Type a Username:</label>
-                    <input type={"text"} value={joinName} onChange={(e) => setJoinName(e.target.value)}/>
-                    <label>Type a room code:</label>
-                    <input type={"text"} value={joinCode} onChange={(e) => setJoinCode(e.target.value)}/>
-                    <button onClick={handleJoinRoom} disabled={!connected}>Join</button>
-                </>
+                <div className="multiplayer-section">
+                    <label className="multiplayer-label">Type a Username:</label>
+                    <input className="multiplayer-input" type={"text"} value={joinName}
+                           onChange={(e) => setJoinName(e.target.value)}/>
+                    <label className="multiplayer-label">Type a room code:</label>
+                    <input className="multiplayer-input" type={"text"} value={joinCode}
+                           onChange={(e) => setJoinCode(e.target.value)}/>
+                    <button className="multiplayer-button" onClick={handleJoinRoom} disabled={!connected}>Join</button>
+                </div>
             )}
-            {error && <p style={{color: "red"}}>{error}</p>}
-        </>
+            {error && <p className="multiplayer-error">{error}</p>}
+        </div>
     )
 
 }

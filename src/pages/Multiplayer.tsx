@@ -1,11 +1,10 @@
 import {useState, useEffect} from "react";
-import { useNavigate } from "react-router-dom";
-import { useSocket } from "../context/SocketContext.tsx";
+import {useNavigate} from "react-router-dom";
+import {useSocket} from "../context/SocketContext.tsx";
 
 
-export default function Multiplayer()
-{
-    const { socket, connected } = useSocket();
+export default function Multiplayer() {
+    const {socket, connected} = useSocket();
     const navigate = useNavigate();
 
     const [categories, setCategories] = useState<string[]>([]);
@@ -19,10 +18,8 @@ export default function Multiplayer()
 
     const [error, setError] = useState("");
 
-    useEffect(() =>
-    {
-        const getCategories = async () =>
-        {
+    useEffect(() => {
+        const getCategories = async () => {
             const response = await fetch("/api/questions/categories");
             const json = await response.json();
             setCategories(json);
@@ -31,37 +28,29 @@ export default function Multiplayer()
         getCategories();
     }, [])
 
-    const handleCreateRoom = () =>
-    {
+    const handleCreateRoom = () => {
         console.log("Got to this create room method.")
-        if(!hostName || !category || !socket) // add
+        if (!hostName || !category || !socket)
             return;
         setError("");
 
-        socket.emit("createRoom", { hostName, category}, (res: any) => {
-            if (res.success)
-            {
+        socket.emit("createRoom", {hostName, category}, (res: any) => {
+            if (res.success) {
                 navigate(`/multiplayer/lobby/${res.room.code}`, {state: {room: res.room, isHost: true}});
-            }
-            else
-            {
-                setError("Failed to creat room");
+            } else {
+                setError("Failed to create room");
             }
         });
     }
 
-    const handleJoinRoom = () =>
-    {
+    const handleJoinRoom = () => {
         if (!socket || !joinName || !joinCode)
             return;
         setError("");
-        socket.emit("joinRoom", { code: joinCode.toUpperCase(), name: joinName }, (res: any) => {
-            if (res.success)
-            {
+        socket.emit("joinRoom", {code: joinCode.toUpperCase(), name: joinName}, (res: any) => {
+            if (res.success) {
                 navigate(`/multiplayer/lobby/${res.room.code}`, {state: {room: res.room, isHost: false}});
-            }
-            else
-            {
+            } else {
                 setError("Failed to creat room");
             }
         });
@@ -78,7 +67,7 @@ export default function Multiplayer()
                 <>
                     <h1>Create Room:</h1>
                     <label>Type a Username:</label>
-                    <input type={"text"} value={hostName} onChange={(e) => setHostName(e.target.value)} />
+                    <input type={"text"} value={hostName} onChange={(e) => setHostName(e.target.value)}/>
                     <label>Category:</label>
                     <select value={category} onChange={(e) => setCategory(e.target.value)}>
                         {categories.map((c) => (
@@ -90,13 +79,13 @@ export default function Multiplayer()
             ) : (
                 <>
                     <label>Type a Username:</label>
-                    <input type={"text"} value={joinName} onChange={(e) => setJoinName(e.target.value)} />
+                    <input type={"text"} value={joinName} onChange={(e) => setJoinName(e.target.value)}/>
                     <label>Type a room code:</label>
                     <input type={"text"} value={joinCode} onChange={(e) => setJoinCode(e.target.value)}/>
                     <button onClick={handleJoinRoom} disabled={!connected}>Join</button>
                 </>
             )}
-            {error && <p style={{ color: "red" }}>{error}</p>}
+            {error && <p style={{color: "red"}}>{error}</p>}
         </>
     )
 

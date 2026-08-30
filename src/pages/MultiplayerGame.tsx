@@ -1,8 +1,8 @@
 import {useState, useEffect} from "react";
-import { useParams, useLocation } from "react-router-dom";
-import { useSocket } from "../context/SocketContext.tsx";
+import {useParams, useLocation} from "react-router-dom";
+import {useSocket} from "../context/SocketContext.tsx";
 import Typing from "../components/quizes/Typing.tsx";
-import { MultipleChoice } from "../components/quizes/MultipleChoice.tsx";
+import {MultipleChoice} from "../components/quizes/MultipleChoice.tsx";
 
 
 interface PublicRound {
@@ -18,6 +18,7 @@ interface PlayerResult {
     socketId: string;
     name: string;
     score: number;
+    multiplier: number;
     correct: boolean | null;
 }
 
@@ -72,13 +73,15 @@ export default function MultiplayerGame() {
 
     const handleTypingComplete = (_correct: boolean, value: string) => {
         if (!socket || !code) return;
-        socket.emit("submitAnswer", { code, answer: value }, () => {});
+        socket.emit("submitAnswer", {code, answer: value}, () => {
+        });
     };
 
 
     const handleMultipleChoiceSelect = (choice: string | null) => {
         if (!socket || !code) return;
-        socket.emit("submitAnswer", { code, answer: choice }, () => {});
+        socket.emit("submitAnswer", {code, answer: choice}, () => {
+        });
     };
 
     if (!round) {
@@ -118,7 +121,7 @@ export default function MultiplayerGame() {
                     <ul>
                         {players.map((p) => (
                             <li key={p.socketId}>
-                                {p.name}: {p.score} {p.correct === true ? "✓" : p.correct === false ? "✗" : ""}
+                                {p.name}: {p.score} ({p.multiplier}x) {p.correct === true ? "✓" : p.correct === false ? "✗" : ""}
                             </li>
                         ))}
                     </ul>

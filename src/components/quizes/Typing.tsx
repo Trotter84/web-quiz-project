@@ -18,7 +18,6 @@ export default function Typing({word, fact, expiryTimestamp, onComplete}: Typing
     const isCorrect: boolean = input.trim().toLowerCase() === word.toLowerCase();
 
 
-
     const {totalMilliseconds, isRunning, pause} = useTimer({
         expiryTimestamp, autoStart: true, interval: 20, onExpire: () => {
             if (!revealed) {
@@ -33,9 +32,9 @@ export default function Typing({word, fact, expiryTimestamp, onComplete}: Typing
             // eslint-disable-next-line react-hooks/set-state-in-effect
             setRevealed(true);
             pause();
-            onComplete(true ,input);
+            onComplete(true, input);
         }
-    }, [isCorrect, revealed, pause, onComplete]);
+    }, [isCorrect, revealed, pause, onComplete, input]);
 
     return (
         <>

@@ -14,6 +14,15 @@ interface MultipleChoiceProps {
     onSelect: (choice: string | null) => void;
 }
 
+function shuffle<T>(items: T[]): T[] {
+    const result = [...items];
+    for (let i = result.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [result[i], result[j]] = [result[j], result[i]];
+    }
+    return result;
+}
+
 export function MultipleChoice({
                                    question,
                                    possibleAnswers,
@@ -24,10 +33,9 @@ export function MultipleChoice({
                                }: MultipleChoiceProps) {
     const [selected, setSelected] = useState<string | null>(null);
     const [timedOut, setTimedOut] = useState<boolean>(false);
-
     const locked = selected !== null || timedOut;
 
-
+    const [shuffledAnswers] = useState<string[]>(() => shuffle(possibleAnswers));
 
     const {totalMilliseconds, isRunning, pause} = useTimer({
         expiryTimestamp, autoStart: true, interval: 20, onExpire: () => {
@@ -51,7 +59,7 @@ export function MultipleChoice({
                 <h3 className="question-txt">{question}</h3>
             </div>
             <div className="multi-choice-container">
-                {possibleAnswers.map((choice) => {
+                {shuffledAnswers.map((choice) => {
                     const isCorrectAnswer = choice === rightAnswer;
                     const isSelectedAnswer = choice === selected;
                     let buttonClass = "answer";

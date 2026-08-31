@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "server": "tsx index.ts",
-    "client": "vite",
+    "client": "vite --host",
     "dev": "concurrently \"npm run server\" \"npm run client\"",
     "build": "tsc -b && vite build",
     "lint": "eslint .",

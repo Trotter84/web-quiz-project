@@ -1,0 +1,103 @@
+/* GameEnd.css */
+
+.game-end-page {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    min-height: 100vh;
+    padding: 50px 20px 30px;
+    box-sizing: border-box;
+}
+
+.game-end-page h1 {
+    color: #F5F5F5;
+    font-family: "Century Gothic", "Futura", "Trebuchet MS", sans-serif;
+    font-size: 56px;
+    font-weight: 800;
+    text-align: center;
+    margin: 0 0 20px 0;
+}
+
+.game-end-page h3 {
+    color: #cfc4d9;
+    font-family: "Century Gothic", "Futura", "Trebuchet MS", sans-serif;
+    font-size: 24px;
+    font-weight: 600;
+    text-align: center;
+    margin: 20px 0 12px 0;
+}
+
+.game-end-room {
+    color: #cfc4d9;
+    font-size: 18px;
+    margin-bottom: 12px;
+}
+
+.game-end-text {
+    color: #cfc4d9;
+    font-size: 18px;
+    margin-bottom: 20px;
+}
+
+.game-end-scores {
+    list-style: none;
+    padding: 0;
+    margin: 0 0 30px 0;
+    width: 100%;
+    max-width: 500px;
+    max-height: 60vh;
+    overflow-y: auto;
+}
+
+.game-end-score-item {
+    box-sizing: border-box;
+    width: 100%;
+    padding: 12px 16px;
+    background-color: #2e2e2e;
+    border: 2px solid #ffffff;
+    border-radius: 6px;
+    color: #ffffff;
+    font-size: 16px;
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.game-end-rank {
+    color: #c9a6e0;
+    font-weight: 700;
+    min-width: 20px;
+}
+
+.game-end-name-score {
+    flex: 1;
+}
+
+.game-end-winner {
+    color: #c9a6e0;
+    font-weight: 700;
+    margin-left: 8px;
+}
+
+.game-end-button {
+    box-sizing: border-box;
+    width: 100%;
+    max-width: 500px;
+    padding: 14px 0;
+    background: linear-gradient(180deg, #1a2b1c, #01110A);
+    color: #ffffff;
+    font-size: 17px;
+    font-weight: 600;
+    letter-spacing: 0.3px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+    transition: background 0.2s ease, transform 0.1s ease, box-shadow 0.2s ease;
+}
+
+.game-end-button:hover {
+    background: linear-gradient(180deg, #223626, #01110A);
+}

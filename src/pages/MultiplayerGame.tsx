@@ -2,7 +2,6 @@ import {useState, useEffect} from "react";
 import {useParams, useLocation, useNavigate} from "react-router-dom";
 import {useSocket} from "../context/SocketContext.tsx";
 import QuizRoundView, {type ActiveRound} from "../components/QuizRoundView.tsx";
-import "../styles/quizScreen.css";
 import "../styles/multiplayerGame.css";
 
 
@@ -107,22 +106,19 @@ export default function MultiplayerGame() {
 
     const loading = round === null;
 
-    // if (!round) {
-    //     return <div className="mp-game-page"><p className="mp-waiting-txt">Waiting for the next round...</p></div>;
-    // }
-
     const expiryTimestamp = round ? new Date(round.startTime + round.timeLimit * 1000) : new Date();
 
     const activeRound: ActiveRound =
-        phase === "playing" && round?.type === "keyword" && round.word
+        round?.type === "keyword" && round.word
             ? {type: "keyword", key: String(roundIndex), word: round.word, fact: "", onComplete: handleTypingComplete}
-            : phase === "playing" && round?.type === "multipleChoice" && round.question && round.choices
+            : round?.type === "multipleChoice" && round.question && round.choices
                 ? {
                     type: "multipleChoice",
                     key: String(roundIndex),
                     question: round.question,
                     possibleAnswers: round.choices,
-                    revealed: false,
+                    rightAnswer: revealAnswer,
+                    revealed: phase === "reveal",
                     onSelect: handleMultipleChoiceSelect,
                 }
                 : null;
@@ -148,7 +144,6 @@ export default function MultiplayerGame() {
                                 key={p.socketId}
                                 className={`scoreboard-item ${p.correct === true ? "correct" : p.correct === false ? "incorrect" : ""}`}
                             >
-                                {/*{p.name}: {p.score} ({p.multiplier}x) {p.correct === true ? "✓" : p.correct === false ? "✗" : ""}*/}
                                 <span className="scoreboard-name">{p.name}</span>
                                 <span className="scoreboard-score">
                                     {p.score}
@@ -163,4 +158,3 @@ export default function MultiplayerGame() {
         />
     );
 }
-

@@ -2,11 +2,6 @@
     color: var(--accent2);
 }
 
-.answer:disabled {
-    pointer-events: none;
-    cursor: default;
-    opacity: 0.7;
-}
 
 .nxt-round-container {
     display: flex;

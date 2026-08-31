@@ -1,9 +1,16 @@
 import type {ReactNode} from "react";
 import Typing from "./quizes/Typing.tsx";
 import MultipleChoice from "./quizes/MultipleChoice.tsx";
+import "../styles/quizRoundView.css";
 
 export type ActiveRound =
-    | { type: "keyword"; key: string; word: string; fact: string; onComplete: (correct: boolean, value: string) => void }
+    | {
+    type: "keyword";
+    key: string;
+    word: string;
+    fact: string;
+    onComplete: (correct: boolean, value: string) => void
+}
     | {
     type: "multipleChoice";
     key: string;

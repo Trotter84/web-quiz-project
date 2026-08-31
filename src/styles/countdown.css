@@ -1,12 +1,27 @@
-.countdown {
+.countdown-ring-container {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
     margin: 1rem;
-    font-size: 1rem;
-    color: var(--text-h);
-    transition: 0.2s;
-    font-family: "Century Gothic", "URW Gothic", "Futura", sans-serif;
 }
 
-.countdown.active {
-    font-size: 1.4rem;
-    color: var(--red);
+.countdown-ring-track {
+    stroke: var(--bg);
+}
+
+.countdown-ring-progress {
+    transition: stroke-dashoffset 0.05s linear, stroke 0.2s;
+}
+
+.countdown {
+    position: absolute;
+    font-size: 1.6rem;
+    transition: 0.2s;
+    color: var(--accent2)
+}
+
+.countdown-ring-container.active .countdown {
+    font-size: 1.3rem;
+    color: var(--text);
 }

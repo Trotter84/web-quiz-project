@@ -1,9 +1,12 @@
 import {useState, useEffect} from "react";
 import {useParams, useLocation, useNavigate} from "react-router-dom";
 import {useSocket} from "../context/SocketContext.tsx";
+import {useTimer} from "react-timer-hook";
 import QuizRoundView, {type ActiveRound} from "../components/QuizRoundView.tsx";
 import "../styles/quizScreen.css";
 import "../styles/multiplayerGame.css";
+import SecondsCountdown from "../components/timers/secondsCountdown.tsx";
+import {SECONDS_BEFORE_CONTINUING} from "../../quizConfig.ts";
 
 
 interface PublicRound {
@@ -31,6 +34,12 @@ interface FinalPlayer {
 
 type Phase = "playing" | "reveal";
 
+function getExpiryTimestamp(seconds: number): Date {
+    const time = new Date();
+    time.setMilliseconds(time.getMilliseconds() + seconds * 1000);
+    return time;
+}
+
 export default function MultiplayerGame() {
     const {code} = useParams<{ code: string }>();
     const location = useLocation();
@@ -39,15 +48,28 @@ export default function MultiplayerGame() {
 
     const initialRound = (location.state as {
         initialRound?: { roundIndex: number; round: PublicRound }
+        initialPlayers?: { socketId: string; name: string }[];
     })?.initialRound;
+
+    const initialPlayers = (location.state as {
+        initialPlayers?: { socketId: string; name: string }[];
+    })?.initialPlayers ?? [];
 
     const [round, setRound] = useState<PublicRound | null>(initialRound?.round ?? null);
     const [roundIndex, setRoundIndex] = useState(initialRound?.roundIndex ?? 0);
     const [phase, setPhase] = useState<Phase>("playing");
 
-    const [revealFact, setRevealFact] = useState<string | undefined>(undefined);
     const [revealAnswer, setRevealAnswer] = useState<string | undefined>(undefined);
-    const [players, setPlayers] = useState<PlayerResult[]>([]);
+    const [revealFact, setRevealFact] = useState<string>("");
+    const [mcRevealed, setMcRevealed] = useState(false);
+    const [players, setPlayers] = useState<PlayerResult[]>(initialPlayers.map((p) => ({socketId: p.socketId, name: p.name, score: 0, multiplier: 1, correct: null})));
+
+
+    const {totalMilliseconds, isRunning, restart: restartRevealTimer} = useTimer({
+        expiryTimestamp: getExpiryTimestamp(SECONDS_BEFORE_CONTINUING),
+        autoStart: false,
+        interval: 20,
+    });
 
     useEffect(() => {
         if (!socket) return;
@@ -57,8 +79,9 @@ export default function MultiplayerGame() {
             setRoundIndex(data.roundIndex);
             setRound(data.round);
             setPhase("playing");
-            setRevealFact(undefined);
             setRevealAnswer(undefined);
+            setRevealFact("");
+            setMcRevealed(false);
         };
 
         const handleRoundEnded = (data: {
@@ -69,9 +92,11 @@ export default function MultiplayerGame() {
         }) => {
             console.log("[client] roundEnded received:", data); // debugging
             setPhase("reveal");
-            setRevealFact(data.fact);
             setRevealAnswer(data.rightAnswer);
+            setRevealFact(data.fact ?? "");
+            setMcRevealed(true);
             setPlayers(data.players);
+            restartRevealTimer(getExpiryTimestamp(SECONDS_BEFORE_CONTINUING));
         };
 
         const handleGameEnded = (data: { players: FinalPlayer[] }) => {
@@ -86,7 +111,7 @@ export default function MultiplayerGame() {
             socket.off("roundEnded", handleRoundEnded);
             socket.off("gameEnded", handleGameEnded);
         };
-    }, [socket, code, navigate]);
+    }, [socket, code, navigate, restartRevealTimer]);
 
     const handleTypingComplete = (_correct: boolean, value: string) => {
         console.log("[client] handleTypingComplete fired, socket:", !!socket, "code:", code); // debugging
@@ -113,16 +138,19 @@ export default function MultiplayerGame() {
 
     const expiryTimestamp = round ? new Date(round.startTime + round.timeLimit * 1000) : new Date();
 
+    const sortedPlayers = players.slice().sort((a, b) => b.score - a.score);
+
     const activeRound: ActiveRound =
-        phase === "playing" && round?.type === "keyword" && round.word
-            ? {type: "keyword", key: String(roundIndex), word: round.word, fact: "", onComplete: handleTypingComplete}
-            : phase === "playing" && round?.type === "multipleChoice" && round.question && round.choices
+        round?.type === "keyword" && round.word
+            ? {type: "keyword", key: String(roundIndex), word: round.word, fact: revealFact, onComplete: handleTypingComplete}
+            : round?.type === "multipleChoice" && round.question && round.choices
                 ? {
                     type: "multipleChoice",
                     key: String(roundIndex),
                     question: round.question,
                     possibleAnswers: round.choices,
-                    revealed: false,
+                    rightAnswer: mcRevealed ? revealAnswer : undefined,
+                    revealed: mcRevealed,
                     onSelect: handleMultipleChoiceSelect,
                 }
                 : null;
@@ -136,28 +164,33 @@ export default function MultiplayerGame() {
             activeRound={activeRound}
             expiryTimestamp={expiryTimestamp}
             phase={phase}
-            footer={null}
-            revealExtra={
+            footer={
                 <div className="reveal-container">
-                    {revealFact && <p className="fact-txt">{revealFact}</p>}
-                    {revealAnswer && <p className="rightAnswer-txt">The correct answer was "{revealAnswer}".</p>}
                     <h3 className="scoreboard-title">Scores</h3>
                     <ul className="scoreboard-list">
-                        {players.map((p) => (
+                        {sortedPlayers.map((p) => (
                             <li
                                 key={p.socketId}
                                 className={`scoreboard-item ${p.correct === true ? "correct" : p.correct === false ? "incorrect" : ""}`}
                             >
-                                {/*{p.name}: {p.score} ({p.multiplier}x) {p.correct === true ? "✓" : p.correct === false ? "✗" : ""}*/}
                                 <span className="scoreboard-name">{p.name}</span>
                                 <span className="scoreboard-score">
-                                    {p.score}
+                                    {p.score} ({p.multiplier})
                                     {p.correct === true && <span className="scoreboard-mark correct"> ✓</span>}
                                     {p.correct === false && <span className="scoreboard-mark incorrect"> ✗</span>}
                                 </span>
                             </li>
                         ))}
                     </ul>
+                </div>
+            }
+            revealExtra={
+                <div className="nxt-round-container">
+                    <p>Next round starting in&nbsp;&nbsp;</p>
+                    <SecondsCountdown
+                        totalMilliseconds={totalMilliseconds}
+                        isRunning={isRunning}
+                    />
                 </div>
             }
         />

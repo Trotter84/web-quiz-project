@@ -1,6 +1,6 @@
 import {useState} from "react";
 import {useTimer} from "react-timer-hook";
-import Countdown from "../countdown.tsx";
+import Countdown from "../timers/countdown.tsx";
 
 import "../../styles/multipleChoice.css";
 
@@ -36,6 +36,8 @@ export default function MultipleChoice({
     const locked = selected !== null || timedOut;
 
     const [shuffledAnswers] = useState<string[]>(() => shuffle(possibleAnswers));
+
+    const [totalDurationMs] = useState<number>(() => expiryTimestamp.getTime() - Date.now());
 
     const {totalMilliseconds, isRunning, pause} = useTimer({
         expiryTimestamp, autoStart: true, interval: 20, onExpire: () => {
@@ -91,6 +93,7 @@ export default function MultipleChoice({
             <Countdown
                 totalMilliseconds={totalMilliseconds}
                 isRunning={isRunning}
+                totalDurationMs={totalDurationMs}
             />
         </>
     );

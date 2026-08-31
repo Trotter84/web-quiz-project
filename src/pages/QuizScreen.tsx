@@ -4,7 +4,7 @@ import {useParams} from "react-router-dom";
 import "../styles/quizScreen.css";
 import QuizRoundView, {type ActiveRound} from "../components/QuizRoundView.tsx";
 import {useTimer} from "react-timer-hook";
-import SecondsCountdown from "../components/secondsCountdown.tsx";
+import SecondsCountdown from "../components/timers/secondsCountdown.tsx";
 import {
     type RoundType,
     MULTIPLE_CHOICE_TIME_LIMIT_SECONDS,
@@ -179,8 +179,6 @@ export default function QuizContainer() {
         ((roundType === "keyword" && words.length === 0) ||
             (roundType === "multipleChoice" && questions.length === 0));
 
-    const displayCategory = category ? category.charAt(0).toUpperCase() + category.slice(1) : "";
-
     const activeRound: ActiveRound = roundType === "keyword" && activeWord ? {
         type: "keyword",
         key: activeWord._id,
@@ -201,15 +199,12 @@ export default function QuizContainer() {
         <QuizRoundView
             loading={loading}
             noContent={noQuizContent}
-            title={`${displayCategory} Quiz`}
+            title={`Round ${roundCount}`}
             activeRound={activeRound}
             expiryTimestamp={roundExpiry}
             phase={phase}
             footer={
-                <>
-                    <p className="score-txt">Score: {score} ({multiplier}x)</p>
-                    <p className="round-txt">Round: {roundCount}</p>
-                </>
+                <p className="score-txt">Score: {score} ({multiplier}x)</p>
             }
             revealExtra={
                 <div className="nxt-round-container">

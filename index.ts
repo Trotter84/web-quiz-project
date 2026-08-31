@@ -17,6 +17,7 @@ import wordRoutes from './src/routes/wordRoutes';
 // import {Socket} from "node:net";
 // import {hostname} from "node:os";
 import {clearTimeout} from "node:timers";
+import {SECONDS_BEFORE_CONTINUING} from "./quizConfig";
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -117,8 +118,8 @@ function endRound(io: Server, room: Room) {
         players: Array.from(room.players.values()).map((p) => ({
             socketId: p.socketId, name: p.name, score: p.score, multiplier: p.multiplier, correct: p.correct,
         })),
+        revealEndsAt: Date.now() + SECONDS_BEFORE_CONTINUING * 1000,
     });
-
     console.log('[server] emitted roundEnded for room', room.code, 'players:', Array.from(room.players.values()).map(p => ({
         name: p.name,
         score: p.score,
@@ -127,7 +128,7 @@ function endRound(io: Server, room: Room) {
 
     setTimeout(() => {
         beginRound(io, room);
-    }, 3000)
+    }, SECONDS_BEFORE_CONTINUING * 1000)
 }
 
 io.on('connection', (socket) => {

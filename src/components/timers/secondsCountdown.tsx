@@ -1,4 +1,4 @@
-import "../styles/secondsCountdown.css";
+import "../../styles/secondsCountdown.css";
 
 
 interface secondsCountdownProps {

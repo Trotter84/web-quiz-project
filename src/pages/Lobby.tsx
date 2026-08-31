@@ -45,7 +45,7 @@ export default function Lobby() {
         const handlePlayerLeft = (updatedRoom: RoomState) => setRoom(updatedRoom);
 
         const handleRoundStarted = (data: { roundIndex: number; round: PublicRound }) => {
-            navigate(`/multiplayer/game/${code}`, {state: {initialRound: data}});
+            navigate(`/multiplayer/game/${code}`, {state: {initialRound: data, initialPlayers: room?.players ?? []}});
         }
 
         const handleGameError = (data: { error: string }) => setError(data.error);
@@ -60,7 +60,7 @@ export default function Lobby() {
             socket.off("roundStarted", handleRoundStarted);
             socket.off("gameError", handleGameError);
         }
-    }, [socket, code, navigate])
+    }, [socket, code, navigate, room])
 
     const handleStartGame = () => {
         if (!socket || !code) return;

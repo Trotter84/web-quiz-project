@@ -1,6 +1,6 @@
 import {useEffect, useState} from "react";
 import {useTimer} from "react-timer-hook";
-import Countdown from "../countdown.tsx";
+import Countdown from "../timers/countdown.tsx";
 
 import "../../styles/typing.css";
 
@@ -17,6 +17,7 @@ export default function Typing({word, fact, expiryTimestamp, onComplete}: Typing
     const [revealed, setRevealed] = useState<boolean>(false);
     const isCorrect: boolean = input.trim().toLowerCase() === word.toLowerCase();
 
+    const [totalDurationMs] = useState<number>(() => expiryTimestamp.getTime() - Date.now());
 
     const {totalMilliseconds, isRunning, pause} = useTimer({
         expiryTimestamp, autoStart: true, interval: 20, onExpire: () => {
@@ -29,7 +30,6 @@ export default function Typing({word, fact, expiryTimestamp, onComplete}: Typing
 
     useEffect(() => {
         if (isCorrect && !revealed) {
-            // eslint-disable-next-line react-hooks/set-state-in-effect
             setRevealed(true);
             pause();
             onComplete(true, input);
@@ -61,6 +61,7 @@ export default function Typing({word, fact, expiryTimestamp, onComplete}: Typing
             <Countdown
                 totalMilliseconds={totalMilliseconds}
                 isRunning={isRunning}
+                totalDurationMs={totalDurationMs}
             />
         </>
     );

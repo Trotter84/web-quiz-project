@@ -58,22 +58,17 @@
 }
 
 #root {
-    width: 90%;
-    max-width: 100%;
-    margin: 0 auto;
-    text-align: center;
-    border-inline: 1px solid var(--border);
-    min-height: 100svh;
     display: flex;
-    flex-direction: column;
-    box-sizing: border-box;
-    background-color: #4D206F;
-
-}
-
-body {
+    justify-content: center;
+    text-align: center;
+    width: 100%;
+    max-width: 100%;
     margin: 0;
+    min-height: 100svh;
+    /*box-sizing: border-box;*/
+    background-color: var(--bg2);
 }
+
 
 h1,
 h2 {

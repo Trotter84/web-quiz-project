@@ -1,3 +1,9 @@
-body {
-    background-color: var(--bg2);
+.app-container {
+    display: flex;
+    flex-direction: column;
+    text-align: center;
+    background-color: var(--bg3);
+    width: 90%;
+    margin: 0 auto;
+    border-inline: 1px solid var(--accent);
 }

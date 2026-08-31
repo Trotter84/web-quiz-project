@@ -12,25 +12,31 @@ import MultiplayerGame from "./pages/MultiplayerGame.tsx";
 import Lobby from "./pages/Lobby.tsx";
 import ModeSelection from "./pages/ModeSelection.tsx";
 import GameEnd from "./pages/GameEnd.tsx";
+import BottomBar from "./components/BottomBar.tsx";
 
 
 export default function App() {
 
     return (
-        <UserProvider>
-            <SocketProvider>
-                <Routes>
-                    <Route path={'/'} element={<ModeSelection/>}/>
-                    <Route path={'/home'} element={<Home/>}/>
-                    <Route path={'/sign-up'} element={<SignUp/>}/>
-                    <Route path={'/login'} element={<Login/>}/>
-                    <Route path={'/quiz/:category'} element={<QuizScreen/>}/>
-                    <Route path={'/multiplayer'} element={<Multiplayer/>}/>
-                    <Route path={'/multiplayer/lobby/:code'} element={<Lobby/>}/>
-                    <Route path={'/multiplayer/game/:code'} element={<MultiplayerGame/>}/>
-                    <Route path={'/multiplayer/game-end/:code'} element={<GameEnd/>}/>
-                </Routes>
-            </SocketProvider>
-        </UserProvider>
+        <>
+            <div className="app-container">
+                <UserProvider>
+                    <SocketProvider>
+                        <Routes>
+                            <Route path={'/'} element={<ModeSelection/>}/>
+                            <Route path={'/home'} element={<Home/>}/>
+                            <Route path={'/sign-up'} element={<SignUp/>}/>
+                            <Route path={'/login'} element={<Login/>}/>
+                            <Route path={'/quiz/:category'} element={<QuizScreen/>}/>
+                            <Route path={'/multiplayer'} element={<Multiplayer/>}/>
+                            <Route path={'/multiplayer/lobby/:code'} element={<Lobby/>}/>
+                            <Route path={'/multiplayer/game/:code'} element={<MultiplayerGame/>}/>
+                            <Route path={'/multiplayer/game-end/:code'} element={<GameEnd/>}/>
+                        </Routes>
+                    </SocketProvider>
+                </UserProvider>
+            </div>
+            <BottomBar/>
+        </>
     );
 }
